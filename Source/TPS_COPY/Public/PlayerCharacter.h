@@ -37,6 +37,8 @@ public:
 	void OnAxisLookUp(float value);
 	void OnAxisTurnRight(float value);
 	void OnActionJump();
+// 	void OnActionCrouch();
+// 	void OnActionCrouchRelease();
 
 	FVector direction;
 	

@@ -70,6 +70,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Look Up"), this, &APlayerCharacter::OnAxisLookUp);
 	PlayerInputComponent->BindAxis(TEXT("Turn Right"), this, &APlayerCharacter::OnAxisTurnRight);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &APlayerCharacter::OnActionJump);
+// 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &APlayerCharacter::OnActionCrouch);
+// 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &APlayerCharacter::OnActionCrouch);
 
 }
 
@@ -92,4 +94,12 @@ void APlayerCharacter::OnAxisTurnRight(float value) {
 void APlayerCharacter::OnActionJump() {
 	Jump();
 }
+
+// void APlayerCharacter::OnActionCrouch() {
+// 	ACharacter::Crouch();
+// }
+// 
+// void APlayerCharacter::OnActionCrouchRelease() {
+// 	ACharacter::UnCrouch();
+// }
 

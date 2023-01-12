@@ -32,7 +32,50 @@ APlayerCharacter::APlayerCharacter()
 	springArmComp->bUsePawnControlRotation = true;
 	cameraComp->bUsePawnControlRotation = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	// Sniper 컴포넌트 등록
+	sniperComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("sniperComp"));
+
+	// 부모 컴포넌트를 Mesh 컴포넌트로 설정
+	sniperComp->SetupAttachment(GetMesh());
+
+	// Sniper Static Mesh Data Load
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> sniperMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/MyResources/FPWeapon/Mesh/Sniper.Sniper'"));
 	
+	// 데이터 로드가 성공했다면
+	if (sniperMesh.Succeeded())
+	{	// 스태틱 메시 데이터를 할당한다.
+		if (sniperComp != nullptr)
+		{
+			sniperComp->SetSkeletalMesh(sniperMesh.Object);
+			// Sniper 위치 조정
+			sniperComp->SetRelativeLocation(FVector(-14, 52, 120));
+		}
+	}
+	
+	//Rifle 컴포넌트 등록
+	rifleComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("rifleComp"));
+
+	//부모 컴포넌트를 Mesh 컴포넌트로 설정
+	rifleComp->SetupAttachment(GetMesh());
+
+	// Rifle Static Mesh Data Load
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> rifleMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/MyResources/FPWeapon/Mesh/Rifle.Rifle'"));
+
+	// 데이터 로드가 성공했다면
+	if (rifleMesh.Succeeded())
+	{
+		if (rifleComp != nullptr)
+		{
+			// 스태틱 메시 데이터를 할당한다.
+			rifleComp->SetSkeletalMesh(rifleMesh.Object);
+			// Rifle 위치 조정
+			rifleComp->SetRelativeLocation(FVector(-14, 52, 120));
+		}
+	}
+
+
+
 
 }
 
@@ -41,6 +84,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	ChangeToSniper();
 }
 
 // Called every frame
@@ -70,9 +114,18 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Look Up"), this, &APlayerCharacter::OnAxisLookUp);
 	PlayerInputComponent->BindAxis(TEXT("Turn Right"), this, &APlayerCharacter::OnAxisTurnRight);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &APlayerCharacter::OnActionJump);
-// 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &APlayerCharacter::OnActionCrouch);
-// 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &APlayerCharacter::OnActionCrouch);
-
+ 	// Crouch 이벤트 처리 함수 바인딩	
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &APlayerCharacter::OnActionCrouch);
+	// Crouch 이벤트 해제 함수 바인딩
+ 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &APlayerCharacter::OnActionCrouchRelease);
+	// Zoom 이벤트 함수 바인딩
+	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Pressed, this, &APlayerCharacter::OnActionZoom);
+	// Fire 이벤트 함수 바인딩
+	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &APlayerCharacter::OnActionFire);
+	// Sniper 스왑 이벤트 함수 바인딩
+	PlayerInputComponent->BindAction(TEXT("Sniper"), IE_Pressed, this, &APlayerCharacter::ChangeToSniper);
+	// Rifle 스왑 이벤트 함수 바인딩
+	PlayerInputComponent->BindAction(TEXT("Rifle"), IE_Pressed, this, &APlayerCharacter::ChangeToRifle);
 }
 
 void APlayerCharacter::OnAxisHorizontal(float value) {
@@ -95,11 +148,38 @@ void APlayerCharacter::OnActionJump() {
 	Jump();
 }
 
-// void APlayerCharacter::OnActionCrouch() {
-// 	ACharacter::Crouch();
-// }
-// 
-// void APlayerCharacter::OnActionCrouchRelease() {
-// 	ACharacter::UnCrouch();
-// }
+void APlayerCharacter::OnActionZoom() {
 
+	UE_LOG(LogTemp, Warning, TEXT("Zoom"))
+}
+
+ void APlayerCharacter::OnActionCrouch() {
+ 	Crouch();
+ }
+ 
+ void APlayerCharacter::OnActionCrouchRelease() {
+ 	UnCrouch();
+ }
+
+ void APlayerCharacter::OnActionFire() {
+	
+	 UE_LOG(LogTemp, Warning, TEXT("Fire"))
+ }
+
+
+ void APlayerCharacter::ChangeToSniper() {
+	 bUsingSniper = true;
+	 sniperComp->SetVisibility(true);
+	 rifleComp->SetVisibility(false);
+
+	 UE_LOG(LogTemp, Warning, TEXT("Sniper"))
+ }
+ 
+ void APlayerCharacter::ChangeToRifle() {
+	 bUsingSniper = false;
+	 sniperComp->SetVisibility(false);
+	 rifleComp->SetVisibility(true);
+
+	 UE_LOG(LogTemp, Warning, TEXT("Rifle"))
+
+ }

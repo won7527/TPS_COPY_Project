@@ -32,15 +32,34 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* cameraComp;
 
+	// 스나이퍼 스켈레탈메시 추가
+	UPROPERTY(EditAnywhere, Category = SniperMesh)
+	class USkeletalMeshComponent* sniperComp;
+
+	// 라이플 스켈레탈메시 추가
+	UPROPERTY(EditAnywhere, Category = RifleMesh)
+	class USkeletalMeshComponent* rifleComp;
+
 	void OnAxisHorizontal(float value);
 	void OnAxisVertical(float value);
 	void OnAxisLookUp(float value);
 	void OnAxisTurnRight(float value);
 	void OnActionJump();
-// 	void OnActionCrouch();
-// 	void OnActionCrouchRelease();
-
+	void OnActionZoom();
+ 	void OnActionCrouch();
+ 	void OnActionCrouchRelease();
+	void OnActionFire();
+	
 	FVector direction;
+
+	// 스나이퍼 사용 중인가
+	bool bUsingSniper = true;
+
+	// 스나이퍼로 변경
+	void ChangeToSniper();
+
+	// 라이플로 변경
+	void ChangeToRifle();
 	
 
 

@@ -44,6 +44,8 @@ public:
 	void OnAxisVertical(float value);
 	void OnAxisLookUp(float value);
 	void OnAxisTurnRight(float value);
+	void OnActionZoomIn();
+	void OnActionZoomOut();
 	void OnActionJump();
 	void OnActionZoom();
  	void OnActionCrouch();
@@ -63,6 +65,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Factory Setting")
 	TSubclassOf<class APlayerBullet> bulletFactory;
+
+	
 	
 
 

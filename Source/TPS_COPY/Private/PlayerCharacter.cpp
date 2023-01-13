@@ -114,6 +114,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &APlayerCharacter::OnAxisVertical);
 	PlayerInputComponent->BindAxis(TEXT("Look Up"), this, &APlayerCharacter::OnAxisLookUp);
 	PlayerInputComponent->BindAxis(TEXT("Turn Right"), this, &APlayerCharacter::OnAxisTurnRight);
+	
+	// ZoomInAxis 이벤트 처리 함수 바인딩
+	PlayerInputComponent->BindAction(TEXT("ZoomIn"), IE_Pressed, this, &APlayerCharacter::OnActionZoomIn);
+	PlayerInputComponent->BindAction(TEXT("ZoomOut"),IE_Pressed, this, &APlayerCharacter::OnActionZoomOut);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &APlayerCharacter::OnActionJump);
  	// Crouch 이벤트 처리 함수 바인딩	
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &APlayerCharacter::OnActionCrouch);
@@ -143,6 +147,16 @@ void APlayerCharacter::OnAxisLookUp(float value) {
 
 void APlayerCharacter::OnAxisTurnRight(float value) {
 	AddControllerYawInput(value);
+}
+
+void APlayerCharacter::OnActionZoomIn() {
+	UE_LOG(LogTemp, Warning, TEXT("ZoomIn"))
+
+		
+}
+
+void APlayerCharacter::OnActionZoomOut() {
+	UE_LOG(LogTemp, Warning, TEXT("ZoomOut"))
 }
 
 void APlayerCharacter::OnActionJump() {

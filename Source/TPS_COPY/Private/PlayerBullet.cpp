@@ -23,11 +23,12 @@ APlayerBullet::APlayerBullet()
 
 	movementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("movementComp"));
 	movementComp->SetUpdatedComponent(sphereComp);
-	movementComp->InitialSpeed = 10000.0f;
-	movementComp->MaxSpeed = 10000.0f;
+	movementComp->InitialSpeed = 30000.0f;
+	movementComp->MaxSpeed = 30000.0f;
 	movementComp->ProjectileGravityScale = 0.1f;
 	movementComp->bShouldBounce = false;
 
+	
 }
 
 // Called when the game starts or when spawned

@@ -52,11 +52,14 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		if (GetWorld()->LineTraceSingleByChannel(hit, startTrace, endTrace, ECollisionChannel::ECC_Visibility))
 		{
 			DrawDebugLine(GetWorld(), startTrace, endTrace, FColor::Red);
+			
+			hitDist.Add(hit.Distance);
 
 		}
 		
 	
 	}*/
+	
 
 	FVector direction1 = me->GetActorForwardVector();
 	me->SetActorLocation(me->GetActorLocation() + direction1* 1000 * DeltaTime);

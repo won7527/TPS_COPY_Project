@@ -66,6 +66,6 @@ public:
 	FVector startTrace;
 	FVector endTrace;
 	float setDist = 1000;
-
+	TArray<float> hitDist;
 
 };

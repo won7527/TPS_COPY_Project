@@ -5,6 +5,7 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
 #include <GameFramework/CharacterMovementComponent.h>
+#include "PlayerBullet.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -162,6 +163,11 @@ void APlayerCharacter::OnActionZoom() {
  }
 
  void APlayerCharacter::OnActionFire() {
+	 	 
+	 FTransform t = sniperComp->GetSocketTransform(TEXT("FirePosition"));
+	 FVector spawnLoc = t.GetLocation();
+
+	 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, spawnLoc, cameraComp->GetComponentRotation());
 	
 	 UE_LOG(LogTemp, Warning, TEXT("Fire"))
  }

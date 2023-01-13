@@ -60,6 +60,9 @@ public:
 
 	// 라이플로 변경
 	void ChangeToRifle();
+
+	UPROPERTY(EditAnywhere, Category="Factory Setting")
+	TSubclassOf<class APlayerBullet> bulletFactory;
 	
 
 

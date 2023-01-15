@@ -6,6 +6,7 @@
 #include <Camera/CameraComponent.h>
 #include <GameFramework/CharacterMovementComponent.h>
 #include "PlayerBullet.h"
+#include "GameFramework/Character.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -114,15 +115,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &APlayerCharacter::OnAxisVertical);
 	PlayerInputComponent->BindAxis(TEXT("Look Up"), this, &APlayerCharacter::OnAxisLookUp);
 	PlayerInputComponent->BindAxis(TEXT("Turn Right"), this, &APlayerCharacter::OnAxisTurnRight);
-	
+
 	// ZoomInAxis 이벤트 처리 함수 바인딩
 	PlayerInputComponent->BindAction(TEXT("ZoomIn"), IE_Pressed, this, &APlayerCharacter::OnActionZoomIn);
-	PlayerInputComponent->BindAction(TEXT("ZoomOut"),IE_Pressed, this, &APlayerCharacter::OnActionZoomOut);
+	PlayerInputComponent->BindAction(TEXT("ZoomOut"), IE_Pressed, this, &APlayerCharacter::OnActionZoomOut);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &APlayerCharacter::OnActionJump);
- 	// Crouch 이벤트 처리 함수 바인딩	
+	// Crouch 이벤트 처리 함수 바인딩	
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &APlayerCharacter::OnActionCrouch);
 	// Crouch 이벤트 해제 함수 바인딩
- 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &APlayerCharacter::OnActionCrouchRelease);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &APlayerCharacter::OnActionCrouchRelease);
 	// Zoom 이벤트 함수 바인딩
 	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Pressed, this, &APlayerCharacter::OnActionZoom);
 	// Fire 이벤트 함수 바인딩
@@ -131,7 +132,21 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Sniper"), IE_Pressed, this, &APlayerCharacter::ChangeToSniper);
 	// Rifle 스왑 이벤트 함수 바인딩
 	PlayerInputComponent->BindAction(TEXT("Rifle"), IE_Pressed, this, &APlayerCharacter::ChangeToRifle);
+	// Dash 이벤트 함수 바인딩
+	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &APlayerCharacter::OnActionDash);
+	// DashReleased 이벤트 함수 바인딩
+	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Released, this, &APlayerCharacter::OnActionDashReleased);
+
+
 }
+	
+	
+	
+	
+
+
+
+	
 
 void APlayerCharacter::OnAxisHorizontal(float value) {
 	direction.Y = value;
@@ -201,5 +216,16 @@ void APlayerCharacter::OnActionZoom() {
 	 rifleComp->SetVisibility(true);
 
 	 UE_LOG(LogTemp, Warning, TEXT("Rifle"))
+
+ }
+
+ void APlayerCharacter::OnActionDash() {
+
+	// CharacterMovement->MaxWalkSpeed = 900.0f;
+
+ }
+ void APlayerCharacter::OnActionDashReleased() {
+
+	 //CharacterMovement->MaxWalkSpeed = 600.0f;
 
  }

@@ -51,6 +51,8 @@ public:
  	void OnActionCrouch();
  	void OnActionCrouchRelease();
 	void OnActionFire();
+	void OnActionDash();
+	void OnActionDashReleased();
 	
 	FVector direction;
 

@@ -16,7 +16,7 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/AnimStarterPack/UE4_Mannequin/Mesh/SK_Mannequin.SK_Mannequin'"));
 
 	if (tempMesh.Succeeded())
 	{
@@ -53,7 +53,7 @@ APlayerCharacter::APlayerCharacter()
 		{
 			sniperComp->SetSkeletalMesh(sniperMesh.Object);
 			// Sniper 위치 조정
-			sniperComp->SetRelativeLocation(FVector(-14, 52, 120));
+			sniperComp->SetRelativeLocation(FVector(-14, 42, 140));
 		}
 
 		scopePlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("scopePlane"));
@@ -80,7 +80,7 @@ APlayerCharacter::APlayerCharacter()
 			// 스태틱 메시 데이터를 할당한다.
 			rifleComp->SetSkeletalMesh(rifleMesh.Object);
 			// Rifle 위치 조정
-			rifleComp->SetRelativeLocation(FVector(-14, 52, 120));
+			rifleComp->SetRelativeLocation(FVector(-14, 42, 140));
 		}
 	}
 

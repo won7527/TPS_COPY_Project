@@ -7,6 +7,8 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include "PlayerBullet.h"
 #include "GameFramework/Character.h"
+#include <Math/UnrealMathUtility.h>
+#include <Components/SceneCaptureComponent2D.h>
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -14,7 +16,7 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin'"));
 
 	if (tempMesh.Succeeded())
 	{
@@ -53,6 +55,12 @@ APlayerCharacter::APlayerCharacter()
 			// Sniper 위치 조정
 			sniperComp->SetRelativeLocation(FVector(-14, 52, 120));
 		}
+
+		scopePlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("scopePlane"));
+		scopePlane->SetupAttachment(cameraComp);
+		scopeCaptureComponent = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("scopeCaptureComponent"));
+		scopeCaptureComponent->SetupAttachment(scopePlane);
+
 	}
 	
 	//Rifle 컴포넌트 등록
@@ -87,6 +95,8 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	ChangeToSniper();
+	OnActionZoomRelease();
+	
 }
 
 // Called every frame
@@ -102,6 +112,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	AddMovementInput(resultDirection);
 	direction = FVector::ZeroVector;
+
+
+	ThrowBack(DeltaTime);
 
 
 }
@@ -126,10 +139,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &APlayerCharacter::OnActionCrouchRelease);
 	// Zoom 이벤트 함수 바인딩
 	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Pressed, this, &APlayerCharacter::OnActionZoom);
+	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Released, this, &APlayerCharacter::OnActionZoomRelease);
 	// Fire 이벤트 함수 바인딩
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &APlayerCharacter::OnActionFire);
+	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &APlayerCharacter::OnActionFireRelease);
 	// Sniper 스왑 이벤트 함수 바인딩
-	PlayerInputComponent->BindAction(TEXT("Sniper"), IE_Pressed, this, &APlayerCharacter::ChangeToSniper);
+	PlayerInputComponent->BindAction(TEXT("Sniper"),  IE_Pressed, this, &APlayerCharacter::ChangeToSniper);
 	// Rifle 스왑 이벤트 함수 바인딩
 	PlayerInputComponent->BindAction(TEXT("Rifle"), IE_Pressed, this, &APlayerCharacter::ChangeToRifle);
 	// Dash 이벤트 함수 바인딩
@@ -141,13 +156,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 	
 	
-	
-	
-
-
-
-	
-
 void APlayerCharacter::OnAxisHorizontal(float value) {
 	direction.Y = value;
 }
@@ -166,12 +174,13 @@ void APlayerCharacter::OnAxisTurnRight(float value) {
 
 void APlayerCharacter::OnActionZoomIn() {
 	UE_LOG(LogTemp, Warning, TEXT("ZoomIn"))
-
+		scopeCaptureComponent->FOVAngle -= 3;
 		
 }
 
 void APlayerCharacter::OnActionZoomOut() {
 	UE_LOG(LogTemp, Warning, TEXT("ZoomOut"))
+		scopeCaptureComponent->FOVAngle += 3;
 }
 
 void APlayerCharacter::OnActionJump() {
@@ -180,10 +189,23 @@ void APlayerCharacter::OnActionJump() {
 
 void APlayerCharacter::OnActionZoom() {
 
-	UE_LOG(LogTemp, Warning, TEXT("Zoom"))
+	UE_LOG(LogTemp, Warning, TEXT("Zooming"))
+		isZooming = true;
+	scopeCaptureComponent->SetVisibility(true);
+	scopePlane->SetVisibility(true);
+
+
 }
 
- void APlayerCharacter::OnActionCrouch() {
+void APlayerCharacter::OnActionZoomRelease() {
+	UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
+	   isZooming = false;
+	scopeCaptureComponent->SetVisibility(false);
+	scopeCaptureComponent->FOVAngle = 90.0;
+	scopePlane->SetVisibility(false);
+}
+
+void APlayerCharacter::OnActionCrouch() {
  	Crouch();
  }
  
@@ -191,16 +213,32 @@ void APlayerCharacter::OnActionZoom() {
  	UnCrouch();
  }
 
- void APlayerCharacter::OnActionFire() {
-	 	 
-	 FTransform t = sniperComp->GetSocketTransform(TEXT("FirePosition"));
-	 FVector spawnLoc = t.GetLocation();
+ void APlayerCharacter::OnActionFire()
+ {
+	 if (bUsingSniper) {	
 
-	 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, spawnLoc, cameraComp->GetComponentRotation());
+		 OneShot();
+		 
+			
+	 }
+	 else {
+		 
+		 GetWorld()->GetTimerManager().SetTimer(fireTimerHandle, this, &APlayerCharacter::OnFire, rifleFireInterval, true);
+		 OnFire();
+
+		// UE_LOG(LogTemp, Warning, TEXT("RifleFire"))
+		 		 
+	 }
+	 	 	
 	
-	 UE_LOG(LogTemp, Warning, TEXT("Fire"))
  }
 
+
+ void APlayerCharacter::OnActionFireRelease() {
+
+	  GetWorldTimerManager().ClearTimer(fireTimerHandle);
+	 // GetWorld()->GetTimerManager().SetTimer(sniperShot, this, &APlayerCharacter::ThrowBack, 5, true);
+ }
 
  void APlayerCharacter::ChangeToSniper() {
 	 bUsingSniper = true;
@@ -221,11 +259,64 @@ void APlayerCharacter::OnActionZoom() {
 
  void APlayerCharacter::OnActionDash() {
 
-	// CharacterMovement->MaxWalkSpeed = 900.0f;
+	GetCharacterMovement()->MaxWalkSpeed  = 1100.0f;
 
  }
  void APlayerCharacter::OnActionDashReleased() {
 
-	 //CharacterMovement->MaxWalkSpeed = 600.0f;
+	 GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+
+ }
+
+ void APlayerCharacter::OnFire() {
+
+	 FTimerHandle dieTimerHandle;
+	 FTransform t = sniperComp->GetSocketTransform(TEXT("FirePosition"));
+	 FVector spawnLoc = t.GetLocation();
+
+	 if (bUsingSniper)
+	 {
+		 if (isZooming == true)
+		 {
+			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, spawnLoc, cameraComp->GetComponentRotation());
+		 }
+		 else {
+			 int32 randomBulletYaw = FMath::RandRange(1, 20);
+			 int32 randomBulletPitch = FMath::RandRange(1, 20);
+			 FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
+
+			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, spawnLoc, cameraComp->GetComponentRotation() + randomBullet);
+		 }
+	 }
+	 else {
+		 int32 randomBulletYaw = FMath::RandRange(1, 10);
+		 int32 randomBulletPitch = FMath::RandRange(1, 10);
+		 FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
+
+		 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, spawnLoc, cameraComp->GetComponentRotation() + randomBullet);
+	 }
+
+		
+ }
+
+ void APlayerCharacter::OneShot() {
+	 if (count == 1) {
+		 UE_LOG(LogTemp, Warning, TEXT("SniperFire"))
+			 OnFire();
+			 count = 0;
+	 }
+
+ }
+
+ void APlayerCharacter::ThrowBack(float deltaTime) {
+	 if (count == 0) {
+		 curTime += deltaTime;
+		 if (curTime >= 5.0f)
+		 {
+			 count = 1;
+			 UE_LOG(LogTemp, Warning, TEXT("Reload"))
+				 curTime = 0;
+		 }
+	 }
 
  }

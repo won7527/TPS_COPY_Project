@@ -40,6 +40,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = RifleMesh)
 	class USkeletalMeshComponent* rifleComp;
 
+	UPROPERTY(EditAnywhere, Category = SniperMesh)
+	class USceneCaptureComponent2D* scopeCaptureComponent;
+
+	UPROPERTY(EditAnywhere, Category = SniperMesh)
+	class UStaticMeshComponent* scopePlane;
+
 	void OnAxisHorizontal(float value);
 	void OnAxisVertical(float value);
 	void OnAxisLookUp(float value);
@@ -48,11 +54,14 @@ public:
 	void OnActionZoomOut();
 	void OnActionJump();
 	void OnActionZoom();
+	void OnActionZoomRelease();
  	void OnActionCrouch();
  	void OnActionCrouchRelease();
 	void OnActionFire();
+	void OnActionFireRelease();
 	void OnActionDash();
 	void OnActionDashReleased();
+	void OnFire();
 	
 	FVector direction;
 
@@ -68,6 +77,21 @@ public:
 	UPROPERTY(EditAnywhere, Category="Factory Setting")
 	TSubclassOf<class APlayerBullet> bulletFactory;
 
+	float sniperFireInterval = 3.1f;
+	float rifleFireInterval = 0.1f;
+
+	FTimerHandle fireTimerHandle;
+
+	float curTime = 0;
+	float coolTime = 3.0f;
+
+	int32 count = 1;
+	FTimerHandle sniperShot;
+
+	void OneShot();
+
+	void ThrowBack(float deltaTime);
+	bool isZooming = false;
 	
 	
 

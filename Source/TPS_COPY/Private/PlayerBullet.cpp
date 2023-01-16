@@ -36,6 +36,9 @@ void APlayerBullet::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	FTimerHandle dieTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(dieTimerHandle, FTimerDelegate::CreateLambda([this]()->void {this->Destroy(); }), 0.3f, false);
+
 }
 
 // Called every frame

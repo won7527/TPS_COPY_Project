@@ -188,21 +188,38 @@ void APlayerCharacter::OnActionJump() {
 }
 
 void APlayerCharacter::OnActionZoom() {
-
-	UE_LOG(LogTemp, Warning, TEXT("Zooming"))
-		isZooming = true;
-	scopeCaptureComponent->SetVisibility(true);
-	scopePlane->SetVisibility(true);
+	if (bUsingSniper == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Zooming"))
+			isZooming = true;
+		scopeCaptureComponent->SetVisibility(true);
+		scopePlane->SetVisibility(true);
+	}
+	else
+	{
+		cameraComp->FieldOfView = 70.0f;
+	}
 
 
 }
 
 void APlayerCharacter::OnActionZoomRelease() {
-	UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
-	   isZooming = false;
-	scopeCaptureComponent->SetVisibility(false);
-	scopeCaptureComponent->FOVAngle = 90.0;
-	scopePlane->SetVisibility(false);
+	if (bUsingSniper == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
+			isZooming = false;
+		scopeCaptureComponent->SetVisibility(false);
+		scopeCaptureComponent->FOVAngle = 90.0;
+		scopePlane->SetVisibility(false);
+	}
+	else
+	{
+		cameraComp->FieldOfView = 90.0f;
+		isZooming = false;
+		scopeCaptureComponent->SetVisibility(false);
+		scopeCaptureComponent->FOVAngle = 90.0;
+		scopePlane->SetVisibility(false);
+	}
 }
 
 void APlayerCharacter::OnActionCrouch() {
@@ -218,7 +235,8 @@ void APlayerCharacter::OnActionCrouch() {
 	 if (bUsingSniper) {	
 
 		 OneShot();
-		 
+
+	
 			
 	 }
 	 else {

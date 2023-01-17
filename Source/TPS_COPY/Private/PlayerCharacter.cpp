@@ -65,6 +65,9 @@ APlayerCharacter::APlayerCharacter()
 		scopePlane->SetupAttachment(cameraComp);
 		scopeCaptureComponent = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("scopeCaptureComponent"));
 		scopeCaptureComponent->SetupAttachment(scopePlane);
+		scopeBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("scopeBack"));
+		scopeBack->SetupAttachment(scopePlane);
+
 
 	}
 	
@@ -101,8 +104,8 @@ void APlayerCharacter::BeginPlay()
 
 	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
-	//crosshairUI = CreateWidget<UUserWidget>(GetWorld(), crosshairFactory);
-	//crosshairUI->AddToViewport();
+	crosshairUI = CreateWidget<UUserWidget>(GetWorld(), crosshairFactory);
+	crosshairUI->AddToViewport();
 	
 	ChangeToSniper();
 	OnActionZoomRelease();
@@ -199,15 +202,20 @@ void APlayerCharacter::OnActionJump() {
 }
 
 void APlayerCharacter::OnActionZoom() {
+	GetCharacterMovement()->MaxWalkSpeed = 70.0f;
+
 	if (bUsingSniper == true)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Zooming"))
 			isZooming = true;
 		scopeCaptureComponent->SetVisibility(true);
 		scopePlane->SetVisibility(true);
+		scopeBack->SetVisibility(true);
+		crosshairUI->RemoveFromParent();
 	}
 	else
 	{
+		
 		cameraComp->FieldOfView = 70.0f;
 	}
 
@@ -215,13 +223,17 @@ void APlayerCharacter::OnActionZoom() {
 }
 
 void APlayerCharacter::OnActionZoomRelease() {
+	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+
 	if (bUsingSniper == true)
 	{
+		crosshairUI->AddToViewport();
 		UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
 			isZooming = false;
 		scopeCaptureComponent->SetVisibility(false);
 		scopeCaptureComponent->FOVAngle = 90.0;
 		scopePlane->SetVisibility(false);
+		scopeBack->SetVisibility(false);
 	}
 	else
 	{
@@ -230,6 +242,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 		scopeCaptureComponent->SetVisibility(false);
 		scopeCaptureComponent->FOVAngle = 90.0;
 		scopePlane->SetVisibility(false);
+		scopeBack->SetVisibility(false);
 	}
 }
 
@@ -346,7 +359,7 @@ void APlayerCharacter::OnActionCrouch() {
  void APlayerCharacter::ThrowBack(float deltaTime) {
 	 if (count == 0) {
 		 curTime += deltaTime;
-		 if (curTime >= 5.0f)
+		 if (curTime >= 2.5f)
 		 {
 			 count = 1;
 			 UE_LOG(LogTemp, Warning, TEXT("Reload"))

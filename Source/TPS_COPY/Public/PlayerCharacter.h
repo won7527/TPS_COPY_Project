@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Blueprint/UserWidget.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -46,6 +47,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = SniperMesh)
 	class UStaticMeshComponent* scopePlane;
 
+	UPROPERTY(EditAnywhere, Category = SniperMesh)
+	class UStaticMeshComponent* scopeBack;
+
 	
 
 	
@@ -81,11 +85,11 @@ public:
 	UPROPERTY(EditAnywhere, Category="Factory Setting")
 	TSubclassOf<class APlayerBullet> bulletFactory;
 	
-	//UPROPERTY(EditAnywhere)		
-	//TSubclassOf<class UUserWidget> crosshairFactory;
+	UPROPERTY(EditAnywhere)		
+	TSubclassOf<class UUserWidget> crosshairFactory;
 
-	//UPROPERTY()
-	//class UUserWidget* crosshairUI;
+	UPROPERTY()
+	class UUserWidget* crosshairUI;
 
 
 	float sniperFireInterval = 3.1f;

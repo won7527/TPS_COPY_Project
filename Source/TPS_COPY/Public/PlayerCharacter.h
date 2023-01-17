@@ -34,7 +34,7 @@ public:
 
 	// 스나이퍼 스켈레탈메시 추가
 	UPROPERTY(EditAnywhere, Category = SniperMesh)
-	class USkeletalMeshComponent* sniperComp;
+	class UStaticMeshComponent* sniperComp;
 
 	// 라이플 스켈레탈메시 추가
 	UPROPERTY(EditAnywhere, Category = RifleMesh)
@@ -45,6 +45,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = SniperMesh)
 	class UStaticMeshComponent* scopePlane;
+
+	
+
+	
 
 	void OnAxisHorizontal(float value);
 	void OnAxisVertical(float value);
@@ -76,6 +80,13 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Factory Setting")
 	TSubclassOf<class APlayerBullet> bulletFactory;
+	
+	//UPROPERTY(EditAnywhere)		
+	//TSubclassOf<class UUserWidget> crosshairFactory;
+
+	//UPROPERTY()
+	//class UUserWidget* crosshairUI;
+
 
 	float sniperFireInterval = 3.1f;
 	float rifleFireInterval = 0.1f;
@@ -93,7 +104,14 @@ public:
 	void ThrowBack(float deltaTime);
 	bool isZooming = false;
 	
-	
+	UPROPERTY(EditAnywhere, Category=PlayerSetting)
+	float walkSpeed = 200;
+	UPROPERTY(EditAnywhere, Category = PlayerSetting)
+	float runSpeed = 600;
+	UPROPERTY(EditAnywhere, Category = PlayerSetting)
+	FVector sniperLoc = FVector (40, 0, 30);
+	FVector rifleLoc = FVector(-42, 7, 1);
+	FVector fireLoc;
 
 
 

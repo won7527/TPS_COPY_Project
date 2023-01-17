@@ -9,6 +9,10 @@
 #include "GameFramework/Character.h"
 #include <Math/UnrealMathUtility.h>
 #include <Components/SceneCaptureComponent2D.h>
+#include "Blueprint/UserWidget.h"
+#include "PlayerAnim.h"
+#include "Components/StaticMeshComponent.h"
+
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -30,7 +34,7 @@ APlayerCharacter::APlayerCharacter()
 	cameraComp->SetupAttachment(springArmComp);
 
 	springArmComp->SetRelativeLocation(FVector(0, 40, 120));
-	springArmComp->TargetArmLength = 130;
+	springArmComp->TargetArmLength = 110;
 
 	bUseControllerRotationYaw = true;
 	springArmComp->bUsePawnControlRotation = true;
@@ -38,22 +42,23 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// Sniper 컴포넌트 등록
-	sniperComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("sniperComp"));
+	sniperComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("sniperComp"));
 
 	// 부모 컴포넌트를 Mesh 컴포넌트로 설정
-	sniperComp->SetupAttachment(GetMesh());
+	sniperComp->SetupAttachment(GetMesh(), TEXT("sniperSocket"));
 
 	// Sniper Static Mesh Data Load
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> sniperMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/MyResources/FPWeapon/Mesh/Sniper.Sniper'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> sniperMesh(TEXT("/Script/Engine.StaticMesh'/Game/SniperGun/sniper1.sniper1'"));
 	
 	// 데이터 로드가 성공했다면
 	if (sniperMesh.Succeeded())
 	{	// 스태틱 메시 데이터를 할당한다.
 		if (sniperComp != nullptr)
 		{
-			sniperComp->SetSkeletalMesh(sniperMesh.Object);
+			sniperComp->SetStaticMesh(sniperMesh.Object);
 			// Sniper 위치 조정
-			sniperComp->SetRelativeLocation(FVector(-14, 42, 140));
+			sniperComp->SetRelativeLocationAndRotation(sniperLoc, FRotator(0, 0, 0));
+			sniperComp->SetRelativeScale3D(FVector(0.2f));
 		}
 
 		scopePlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("scopePlane"));
@@ -67,11 +72,11 @@ APlayerCharacter::APlayerCharacter()
 	rifleComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("rifleComp"));
 
 	//부모 컴포넌트를 Mesh 컴포넌트로 설정
-	rifleComp->SetupAttachment(GetMesh());
+	rifleComp->SetupAttachment(GetMesh(), TEXT("rifleSocket"));
 
 	// Rifle Static Mesh Data Load
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> rifleMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/MyResources/FPWeapon/Mesh/Rifle.Rifle'"));
-
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> rifleMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
+	
 	// 데이터 로드가 성공했다면
 	if (rifleMesh.Succeeded())
 	{
@@ -80,7 +85,7 @@ APlayerCharacter::APlayerCharacter()
 			// 스태틱 메시 데이터를 할당한다.
 			rifleComp->SetSkeletalMesh(rifleMesh.Object);
 			// Rifle 위치 조정
-			rifleComp->SetRelativeLocation(FVector(-14, 42, 140));
+			rifleComp->SetRelativeLocationAndRotation(rifleLoc, FRotator(0, 90, 0));
 		}
 	}
 
@@ -93,9 +98,15 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+
+	//crosshairUI = CreateWidget<UUserWidget>(GetWorld(), crosshairFactory);
+	//crosshairUI->AddToViewport();
 	
 	ChangeToSniper();
 	OnActionZoomRelease();
+	
 	
 }
 
@@ -235,14 +246,17 @@ void APlayerCharacter::OnActionCrouch() {
 	 if (bUsingSniper) {	
 
 		 OneShot();
-
-	
+		 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+		 anim->PlayAttackAnim();
 			
 	 }
 	 else {
 		 
 		 GetWorld()->GetTimerManager().SetTimer(fireTimerHandle, this, &APlayerCharacter::OnFire, rifleFireInterval, true);
 		 OnFire();
+
+		 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+		 anim->PlayAttackAnim();
 
 		// UE_LOG(LogTemp, Warning, TEXT("RifleFire"))
 		 		 
@@ -277,33 +291,36 @@ void APlayerCharacter::OnActionCrouch() {
 
  void APlayerCharacter::OnActionDash() {
 
-	GetCharacterMovement()->MaxWalkSpeed  = 1100.0f;
+	GetCharacterMovement()->MaxWalkSpeed  = runSpeed;
 
  }
  void APlayerCharacter::OnActionDashReleased() {
 
-	 GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	 GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
  }
 
  void APlayerCharacter::OnFire() {
 
 	 FTimerHandle dieTimerHandle;
-	 FTransform t = sniperComp->GetSocketTransform(TEXT("FirePosition"));
-	 FVector spawnLoc = t.GetLocation();
-
+	 FTransform t = GetMesh()->GetSocketTransform(TEXT("sniperFire"));
+	 FTransform s = GetMesh()->GetSocketTransform(TEXT("rifleFire"));
+	 FVector sniperFireLoc = t.GetLocation();
+	 FVector rifleFireLoc = s.GetLocation();
+	 
+	 
 	 if (bUsingSniper)
 	 {
 		 if (isZooming == true)
 		 {
-			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, spawnLoc, cameraComp->GetComponentRotation());
+			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation());
 		 }
 		 else {
 			 int32 randomBulletYaw = FMath::RandRange(1, 20);
 			 int32 randomBulletPitch = FMath::RandRange(1, 20);
 			 FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
 
-			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, spawnLoc, cameraComp->GetComponentRotation() + randomBullet);
+			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation() + randomBullet);
 		 }
 	 }
 	 else {
@@ -311,7 +328,7 @@ void APlayerCharacter::OnActionCrouch() {
 		 int32 randomBulletPitch = FMath::RandRange(1, 10);
 		 FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
 
-		 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, spawnLoc, cameraComp->GetComponentRotation() + randomBullet);
+		 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, rifleFireLoc, cameraComp->GetComponentRotation() + randomBullet);
 	 }
 
 		

@@ -42,7 +42,7 @@ void AEnemy::Tick(float DeltaTime)
 	{
 		FRotator HeadToTarget = (target->GetActorLocation() - GetActorLocation()).Rotation();
 		SetActorRotation(HeadToTarget);
-		UE_LOG(LogTemp, Warning, TEXT("a"));
+		//UE_LOG(LogTemp, Warning, TEXT("a"));
 	}
 }
 
@@ -67,7 +67,7 @@ void AEnemy::Attack()
 	
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("S"));
+		//UE_LOG(LogTemp, Warning, TEXT("S"));
 	}
 	
 }

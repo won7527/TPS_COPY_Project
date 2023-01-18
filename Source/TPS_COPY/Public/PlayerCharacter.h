@@ -50,7 +50,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = SniperMesh)
 	class UStaticMeshComponent* scopeBack;
 
-	
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* bulletImpactFactory;
 
 	
 

@@ -32,3 +32,8 @@ void ATCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
+
+void ATCharacter::GetDamaged()
+{
+	UE_LOG(LogTemp, Warning, TEXT("HIT"));
+}

@@ -30,6 +30,23 @@ public:
 
 public:
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=FSMComponent)
-	//class UEnemyFSM* fsm;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxHp = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CurrentHp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float RightBeforeHp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector StartTrace;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector EndTrace;
+	
+	UFUNCTION(BlueprintCallable)
+	void Attack();
+
+	UPROPERTY(EditAnywhere)
+	class ATCharacter* target;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool InRange = false;
 };

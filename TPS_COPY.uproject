@@ -9,10 +9,13 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
+
 				"Engine",
 				"UMGEditor",
 				"UMG",
 				"AIModule"
+
+
 			]
 		}
 	],

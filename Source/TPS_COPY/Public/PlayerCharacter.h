@@ -53,6 +53,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* bulletImpactFactory;
 
+	UPROPERTY(EditDefaultsOnly, Category=CameraMotion)
+	TSubclassOf<class UCameraShakeBase> cameraShake;
+
 	
 
 	void OnAxisHorizontal(float value);

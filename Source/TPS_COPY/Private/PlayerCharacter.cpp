@@ -207,6 +207,7 @@ void APlayerCharacter::OnActionZoom() {
 
 	if (bUsingSniper == true)
 	{
+		GetMesh()->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("Zooming"))
 			isZooming = true;
 		scopeCaptureComponent->SetVisibility(true);
@@ -228,6 +229,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 
 	if (bUsingSniper == true)
 	{
+		GetMesh()->SetVisibility(true);
 		crosshairUI->AddToViewport();
 		UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
 			isZooming = false;
@@ -238,6 +240,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 	}
 	else
 	{
+		GetMesh()->SetVisibility(true);
 		cameraComp->FieldOfView = 90.0f;
 		isZooming = false;
 		scopeCaptureComponent->SetVisibility(false);
@@ -262,6 +265,7 @@ void APlayerCharacter::OnActionCrouch() {
 		 OneShot();
 		 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 		 anim->PlayAttackAnim();
+		
 			
 	 }
 	 else {
@@ -355,6 +359,9 @@ void APlayerCharacter::OnActionCrouch() {
 			 FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
 
 			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation() + randomBullet);
+
+			 auto controller = GetWorld()->GetFirstPlayerController();
+			 controller->PlayerCameraManager->StartCameraShake(cameraShake);
 		 }
 	 }
 	 else {
@@ -373,6 +380,9 @@ void APlayerCharacter::OnActionCrouch() {
 		 UE_LOG(LogTemp, Warning, TEXT("SniperFire"))
 			 OnFire();
 			 count = 0;
+			 //카메라 셰이크 재생
+			 auto controller = GetWorld()->GetFirstPlayerController();
+			 controller->PlayerCameraManager->StartCameraShake(cameraShake);
 	 }
 
  }

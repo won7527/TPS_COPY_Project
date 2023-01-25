@@ -272,11 +272,11 @@ void APlayerCharacter::OnActionCrouch() {
 	 }
 	 else {
 		 
-		 GetWorld()->GetTimerManager().SetTimer(fireTimerHandle, this, &APlayerCharacter::OnFire, rifleFireInterval, true);
+		 /*GetWorld()->GetTimerManager().SetTimer(fireTimerHandle, this, &APlayerCharacter::OnFire, rifleFireInterval, true);
 		 OnFire();
 
 		 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
-		 anim->PlayAttackAnim();
+		 anim->PlayAttackAnim();*/
 
 		// UE_LOG(LogTemp, Warning, TEXT("RifleFire"))
 		 		 

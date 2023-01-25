@@ -207,6 +207,7 @@ void APlayerCharacter::OnActionZoom() {
 
 	if (bUsingSniper == true)
 	{
+		sniperComp->SetVisibility(false);
 		GetMesh()->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("Zooming"))
 			isZooming = true;
@@ -229,6 +230,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 
 	if (bUsingSniper == true)
 	{
+		sniperComp->SetVisibility(true);
 		GetMesh()->SetVisibility(true);
 		crosshairUI->AddToViewport();
 		UE_LOG(LogTemp, Warning, TEXT("NotZooming"))

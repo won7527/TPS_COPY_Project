@@ -14,6 +14,8 @@
 #include "Components/StaticMeshComponent.h"
 #include <Kismet/GameplayStatics.h>
 
+#include "Kismet/KismetMathLibrary.h"
+
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -345,6 +347,12 @@ void APlayerCharacter::OnActionCrouch() {
 			 {
 				 auto hitComp = hitInfo.GetComponent();
 				 FTransform trans(hitInfo.ImpactPoint);
+				 /*auto decalLoc = hitInfo.Location;
+				 auto hitIN = hitInfo.ImpactNormal;
+				 auto hitRot = UKismetMathLibrary::Conv_VectorToRotator(hitIN);
+				 auto decalRot = UKismetMathLibrary::MakeTransform(hitInfo.Location, hitRot);
+				
+				 UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decalFactory, FVector(1, 1, 1), decalLoc, hitRot);*/
 				 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
 				 if (hitComp != nullptr && hitComp->IsSimulatingPhysics())
 				 {
@@ -355,6 +363,9 @@ void APlayerCharacter::OnActionCrouch() {
 
 					 FVector force = forceDir * 500000 * hitComp->GetMass();
 					 hitComp->AddForce(force);
+
+					 
+					 
 				 }
 			 }
 		 }

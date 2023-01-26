@@ -40,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USpringArmComponent* springArmComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCameraComponent* cameraComp;
 
 	// 스나이퍼 스켈레탈메시 추가
@@ -60,7 +60,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = SniperMesh)
 	class UStaticMeshComponent* scopeBack;
 
-	
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* bulletImpactFactory;
+
+	UPROPERTY(EditDefaultsOnly, Category=CameraMotion)
+	TSubclassOf<class UCameraShakeBase> cameraShake;
 
 	
 
@@ -84,6 +88,7 @@ public:
 	FVector direction;
 
 	// 스나이퍼 사용 중인가
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Player Setting")
 	bool bUsingSniper = true;
 
 	// 스나이퍼로 변경

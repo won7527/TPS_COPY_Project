@@ -12,6 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerAnim.h"
 #include "Components/StaticMeshComponent.h"
+#include <Kismet/GameplayStatics.h>
 
 
 // Sets default values
@@ -208,6 +209,8 @@ void APlayerCharacter::OnActionZoom() {
 
 	if (bUsingSniper == true)
 	{
+		sniperComp->SetVisibility(false);
+		GetMesh()->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("Zooming"))
 			isZooming = true;
 		scopeCaptureComponent->SetVisibility(true);
@@ -229,6 +232,8 @@ void APlayerCharacter::OnActionZoomRelease() {
 
 	if (bUsingSniper == true)
 	{
+		sniperComp->SetVisibility(true);
+		GetMesh()->SetVisibility(true);
 		crosshairUI->AddToViewport();
 		UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
 			isZooming = false;
@@ -239,6 +244,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 	}
 	else
 	{
+		GetMesh()->SetVisibility(true);
 		cameraComp->FieldOfView = 90.0f;
 		isZooming = false;
 		scopeCaptureComponent->SetVisibility(false);
@@ -263,15 +269,16 @@ void APlayerCharacter::OnActionCrouch() {
 		 OneShot();
 		 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 		 anim->PlayAttackAnim();
+		
 			
 	 }
 	 else {
 		 
-		 GetWorld()->GetTimerManager().SetTimer(fireTimerHandle, this, &APlayerCharacter::OnFire, rifleFireInterval, true);
+		 /*GetWorld()->GetTimerManager().SetTimer(fireTimerHandle, this, &APlayerCharacter::OnFire, rifleFireInterval, true);
 		 OnFire();
 
 		 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
-		 anim->PlayAttackAnim();
+		 anim->PlayAttackAnim();*/
 
 		// UE_LOG(LogTemp, Warning, TEXT("RifleFire"))
 		 		 
@@ -322,13 +329,33 @@ void APlayerCharacter::OnActionCrouch() {
 	 FTransform s = GetMesh()->GetSocketTransform(TEXT("rifleFire"));
 	 FVector sniperFireLoc = t.GetLocation();
 	 FVector rifleFireLoc = s.GetLocation();
-	 
+	 FHitResult hitInfo;
+	 FVector start = cameraComp->GetComponentLocation();
+	 FVector end = start + cameraComp->GetForwardVector() * 100000;
+	 FCollisionQueryParams params;
+	 params.AddIgnoredActor(this);
 	 
 	 if (bUsingSniper)
 	 {
 		 if (isZooming == true)
 		 {
-			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation());
+			 bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECollisionChannel::ECC_Visibility, params);
+			 if (bHit)
+			 {
+				 auto hitComp = hitInfo.GetComponent();
+				 FTransform trans(hitInfo.ImpactPoint);
+				 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
+				 if (hitComp != nullptr && hitComp->IsSimulatingPhysics())
+				 {
+					 //FVector force = -hitInfo.ImpactNormal * hitComp->GetMass();
+					// hitComp->AddForce(force);
+					 UE_LOG(LogTemp, Warning, TEXT("ischased"))
+					 FVector forceDir = (hitInfo.TraceEnd - hitInfo.TraceStart).GetSafeNormal();
+
+					 FVector force = forceDir * 500000 * hitComp->GetMass();
+					 hitComp->AddForce(force);
+				 }
+			 }
 		 }
 		 else {
 			 int32 randomBulletYaw = FMath::RandRange(1, 20);
@@ -336,6 +363,9 @@ void APlayerCharacter::OnActionCrouch() {
 			 FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
 
 			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation() + randomBullet);
+
+			 auto controller = GetWorld()->GetFirstPlayerController();
+			 controller->PlayerCameraManager->StartCameraShake(cameraShake);
 		 }
 	 }
 	 else {
@@ -354,6 +384,9 @@ void APlayerCharacter::OnActionCrouch() {
 		 UE_LOG(LogTemp, Warning, TEXT("SniperFire"))
 			 OnFire();
 			 count = 0;
+			 //카메라 셰이크 재생
+			 auto controller = GetWorld()->GetFirstPlayerController();
+			 controller->PlayerCameraManager->StartCameraShake(cameraShake);
 	 }
 
  }
@@ -361,7 +394,7 @@ void APlayerCharacter::OnActionCrouch() {
  void APlayerCharacter::ThrowBack(float deltaTime) {
 	 if (count == 0) {
 		 curTime += deltaTime;
-		 if (curTime >= 2.5f)
+		 if (curTime >= 2.0f)
 		 {
 			 count = 1;
 			 UE_LOG(LogTemp, Warning, TEXT("Reload"))

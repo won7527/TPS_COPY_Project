@@ -5,16 +5,26 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Blueprint/UserWidget.h"
+#include "GenericTeamAgentInterface.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class TPS_COPY_API APlayerCharacter : public ACharacter
+class TPS_COPY_API APlayerCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
+private:
+	
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
+
+	FGenericTeamId TeamId;
+
+	virtual FGenericTeamId GetGenericTeamId() const override
+	{
+		return TeamId;
+	}
 
 protected:
 	// Called when the game starts or when spawned

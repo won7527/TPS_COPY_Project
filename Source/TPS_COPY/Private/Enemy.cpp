@@ -4,8 +4,7 @@
 #include "Enemy.h"
 #include "EnemyFSM.h"
 #include "EngineUtils.h"
-
-#include "TCharacter.h"
+#include "PlayerCharacter.h"
 #include <Kismet/GameplayStatics.h>
 
 
@@ -26,9 +25,9 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 	
 	
-	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), ATCharacter::StaticClass());
+	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerCharacter::StaticClass());
 
-	target = Cast<ATCharacter>(actor);
+	target = Cast<APlayerCharacter>(actor);
 	
 	
 }
@@ -60,10 +59,10 @@ void AEnemy::Attack()
 	FCollisionQueryParams param;
 	param.AddIgnoredActor(this);
 
-	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility,param);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, param);
 	if (bHit)
 	{
-		target->GetDamaged();
+		
 	
 	}
 	else {
@@ -72,3 +71,29 @@ void AEnemy::Attack()
 	
 }
 
+int32 AEnemy::Patrol()
+{
+
+	int32 RandomPatrolPoint = FMath::RandRange(0, PatArr.Num() - 1);
+	if (CurrentPoint == RandomPatrolPoint)
+	{
+		CurrentPoint = -1;
+		return CurrentPoint;
+	}
+	CurrentPoint = RandomPatrolPoint;
+	return RandomPatrolPoint;
+
+}
+
+void AEnemy::Killed()
+{
+	Destroy();
+}
+
+void AEnemy::HPDecreased()
+{
+	if (CurrentHp != 0)
+	{
+		CurrentHp -= 1;
+	}
+}

@@ -20,6 +20,8 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	TeamId = FGenericTeamId(0);
+
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/AnimStarterPack/UE4_Mannequin/Mesh/SK_Mannequin.SK_Mannequin'"));
 
 	if (tempMesh.Succeeded())
@@ -368,3 +370,4 @@ void APlayerCharacter::OnActionCrouch() {
 	 }
 
  }
+

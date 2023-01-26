@@ -37,3 +37,4 @@ void ATCharacter::GetDamaged()
 {
 	UE_LOG(LogTemp, Warning, TEXT("HIT"));
 }
+

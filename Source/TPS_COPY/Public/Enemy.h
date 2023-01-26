@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Engine/TargetPoint.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -19,14 +20,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
+
 
 public:
 
@@ -40,13 +41,25 @@ public:
 	FVector StartTrace;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector EndTrace;
-	
+
 	UFUNCTION(BlueprintCallable)
 	void Attack();
+	UFUNCTION(BlueprintCallable)
+	int32 Patrol();
+	UFUNCTION(BlueprintCallable)
+	void Killed();
+	UFUNCTION(BlueprintCallable)
+	void HPDecreased();
+
 
 	UPROPERTY(EditAnywhere)
-	class ATCharacter* target;
+	class APlayerCharacter* target;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool InRange = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PatrolPoint")
+	TArray<ATargetPoint*> PatArr;
+
+	int32 CurrentPoint = -1;
 };

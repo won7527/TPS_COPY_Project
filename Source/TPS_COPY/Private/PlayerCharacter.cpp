@@ -334,6 +334,7 @@ void APlayerCharacter::OnActionCrouch() {
 	 FVector end = start + cameraComp->GetForwardVector() * 100000;
 	 FCollisionQueryParams params;
 	 params.AddIgnoredActor(this);
+	
 	 
 	 if (bUsingSniper)
 	 {

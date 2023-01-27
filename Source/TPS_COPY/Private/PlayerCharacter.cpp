@@ -15,6 +15,8 @@
 #include <Kismet/GameplayStatics.h>
 #include "Enemy.h"
 
+#include "Kismet/KismetMathLibrary.h"
+
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -222,7 +224,7 @@ void APlayerCharacter::OnActionZoom() {
 	else
 	{
 		
-		cameraComp->FieldOfView = 70.0f;
+		cameraComp->FieldOfView = 50.0f;
 	}
 
 
@@ -335,6 +337,7 @@ void APlayerCharacter::OnActionCrouch() {
 	 FVector end = start + cameraComp->GetForwardVector() * 100000;
 	 FCollisionQueryParams params;
 	 params.AddIgnoredActor(this);
+	
 	 
 	 if (bUsingSniper)
 	 {
@@ -346,6 +349,12 @@ void APlayerCharacter::OnActionCrouch() {
 				 auto hitComp = hitInfo.GetComponent();
 				 
 				 FTransform trans(hitInfo.ImpactPoint);
+				 /*auto decalLoc = hitInfo.Location;
+				 auto hitIN = hitInfo.ImpactNormal;
+				 auto hitRot = UKismetMathLibrary::Conv_VectorToRotator(hitIN);
+				 auto decalRot = UKismetMathLibrary::MakeTransform(hitInfo.Location, hitRot);
+				
+				 UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decalFactory, FVector(1, 1, 1), decalLoc, hitRot);*/
 				 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
 				 if (hitComp != nullptr && hitComp->IsSimulatingPhysics())
 				 {
@@ -356,6 +365,9 @@ void APlayerCharacter::OnActionCrouch() {
 
 					 FVector force = forceDir * 500000 * hitComp->GetMass();
 					 hitComp->AddForce(force);
+
+					 
+					 
 				 }
 			 }
 		 }

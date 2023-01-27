@@ -48,7 +48,7 @@ public:
 	class UStaticMeshComponent* sniperComp;
 
 	// 라이플 스켈레탈메시 추가
-	UPROPERTY(EditAnywhere, Category = RifleMesh)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = RifleMesh)
 	class USkeletalMeshComponent* rifleComp;
 
 	UPROPERTY(EditAnywhere, Category = SniperMesh)
@@ -63,8 +63,25 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* bulletImpactFactory;
 
+	UPROPERTY(EditAnywhere)
+		class UParticleSystem* fireSmokeFactory;
+
+	UPROPERTY(EditAnywhere)
+		class UParticleSystem* shotFireFactory;
+
+
+
+	//UPROPERTY(EditAnywhere)
+	//class UMaterialInterface* decalFactory;
+
 	UPROPERTY(EditDefaultsOnly, Category=CameraMotion)
 	TSubclassOf<class UCameraShakeBase> cameraShake;
+
+	UPROPERTY(EditAnywhere)
+		class UAnimMontage* fireMontageFactory;
+
+	UPROPERTY()
+		class USoundBase* fireSound;
 
 	
 

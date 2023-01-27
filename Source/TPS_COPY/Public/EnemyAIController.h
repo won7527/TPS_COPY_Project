@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "BehaviorTree/BlackboardData.h"
 #include "EnemyAIController.generated.h"
 
 /**
@@ -18,6 +19,15 @@ class TPS_COPY_API AEnemyAIController : public AAIController
 	{
 		SetGenericTeamId(FGenericTeamId(1));
 	}
+public:
 
+	AEnemyAIController();
+
+
+	UPROPERTY()
+	class UBlackboardData* BBData;
+
+	UFUNCTION(BlueprintCallable)
+	void Printsomething();
 };
 

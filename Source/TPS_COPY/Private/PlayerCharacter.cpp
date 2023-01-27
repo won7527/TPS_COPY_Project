@@ -13,6 +13,7 @@
 #include "PlayerAnim.h"
 #include "Components/StaticMeshComponent.h"
 #include <Kismet/GameplayStatics.h>
+#include "Enemy.h"
 
 
 // Sets default values
@@ -343,6 +344,7 @@ void APlayerCharacter::OnActionCrouch() {
 			 if (bHit)
 			 {
 				 auto hitComp = hitInfo.GetComponent();
+				 
 				 FTransform trans(hitInfo.ImpactPoint);
 				 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
 				 if (hitComp != nullptr && hitComp->IsSimulatingPhysics())

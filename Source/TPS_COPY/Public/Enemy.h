@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Engine/TargetPoint.h"
+#include "EnemyAIController.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -50,6 +51,8 @@ public:
 	void Killed();
 	UFUNCTION(BlueprintCallable)
 	void HPDecreased();
+	UFUNCTION(BlueprintCallable)
+	void RifleHit();
 
 
 	UPROPERTY(EditAnywhere)
@@ -62,4 +65,21 @@ public:
 	TArray<ATargetPoint*> PatArr;
 
 	int32 CurrentPoint = -1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimSequence* DefaultAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimSequence* HittedAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimSequence* HittedBackAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimSequence* DeadAnim;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsAttack;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsBackAttack;
+	
+
+	
 };

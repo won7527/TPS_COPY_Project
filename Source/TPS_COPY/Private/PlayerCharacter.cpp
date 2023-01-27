@@ -365,6 +365,7 @@ void APlayerCharacter::OnActionCrouch() {
 
 					 FVector force = forceDir * 500000 * hitComp->GetMass();
 					 hitComp->AddForce(force);
+					//auto enemy = Cast<AEnemy>()
 
 					 
 					 

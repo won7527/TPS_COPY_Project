@@ -223,7 +223,7 @@ void APlayerCharacter::OnActionZoom() {
 	else
 	{
 		
-		cameraComp->FieldOfView = 70.0f;
+		cameraComp->FieldOfView = 50.0f;
 	}
 
 

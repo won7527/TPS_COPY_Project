@@ -49,16 +49,16 @@ public:
 
 	// 라이플 스켈레탈메시 추가
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = RifleMesh)
-	class USkeletalMeshComponent* rifleComp;
+	class UStaticMeshComponent* rifleComp;
 
-	UPROPERTY(EditAnywhere, Category = SniperMesh)
-	class USceneCaptureComponent2D* scopeCaptureComponent;
+	//UPROPERTY(EditAnywhere, Category = SniperMesh)
+	//class USceneCaptureComponent2D* scopeCaptureComponent;
 
-	UPROPERTY(EditAnywhere, Category = SniperMesh)
-	class UStaticMeshComponent* scopePlane;
+	//UPROPERTY(EditAnywhere, Category = SniperMesh)
+	//class UStaticMeshComponent* scopePlane;
 
-	UPROPERTY(EditAnywhere, Category = SniperMesh)
-	class UStaticMeshComponent* scopeBack;
+	//UPROPERTY(EditAnywhere, Category = SniperMesh)
+	//class UStaticMeshComponent* scopeBack;
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* bulletImpactFactory;
@@ -68,6 +68,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		class UParticleSystem* shotFireFactory;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> sniperFactory;
+
+	UPROPERTY()
+		class UUserWidget* sniperUI;
 
 
 
@@ -100,6 +106,9 @@ public:
 	void OnActionFireRelease();
 	void OnActionDash();
 	void OnActionDashReleased();
+	void OnActionLookAroundPressed();
+	void OnActionLookAroundReleased();
+
 	void OnFire();
 	
 	FVector direction;
@@ -148,8 +157,8 @@ public:
 	FVector sniperLoc = FVector (40, 0, 30);
 	FVector rifleLoc = FVector(-42, 7, 1);
 	FVector fireLoc;
-
-
+	UPROPERTY(EditAnywhere, Category = PlayerSetting)
+		FVector rrifleLoc = FVector(3.790621, 53.665231, 0.000000);
 
 
 };

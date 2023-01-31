@@ -121,7 +121,7 @@ void APlayerCharacter::BeginPlay()
 	sniperUI = CreateWidget<UUserWidget>(GetWorld(), sniperFactory);
 	
 	ChangeToSniper();
-	OnActionZoomRelease();
+	//OnActionZoomRelease();
 
 
 	
@@ -223,6 +223,7 @@ void APlayerCharacter::OnActionZoom() {
 
 	if (bUsingSniper == true)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), zoomInSound);
 		sniperComp->SetVisibility(false);
 		GetMesh()->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("Zooming"))
@@ -251,6 +252,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 
 	if (bUsingSniper == true)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), zoomOutSound);
 		sniperComp->SetVisibility(true);
 		GetMesh()->SetVisibility(true);
 		sniperUI->RemoveFromParent();
@@ -373,7 +375,8 @@ void APlayerCharacter::OnFire() {
 	 
 	 if (bUsingSniper)
 	 {
-		 if (isZooming == true)
+		 UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+		  if (isZooming == true)
 		 {
 			 bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECollisionChannel::ECC_Visibility, params);
 			 if (bHit)

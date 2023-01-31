@@ -86,8 +86,14 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UAnimMontage* fireMontageFactory;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
 		class USoundBase* fireSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
+		class USoundBase* zoomInSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
+		class USoundBase* zoomOutSound;;
 
 	
 

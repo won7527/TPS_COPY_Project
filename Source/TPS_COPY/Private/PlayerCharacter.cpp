@@ -27,7 +27,7 @@ APlayerCharacter::APlayerCharacter()
 
 	TeamId = FGenericTeamId(0);
 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/AnimStarterPack/UE4_Mannequin/Mesh/SK_Mannequin.SK_Mannequin'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/CharacterSkeletal/Ch15_nonPBR.Ch15_nonPBR'"));
 
 	if (tempMesh.Succeeded())
 	{

@@ -13,6 +13,7 @@
 #include "PlayerAnim.h"
 #include "Components/StaticMeshComponent.h"
 #include <Kismet/GameplayStatics.h>
+#include "GameFramework/PlayerController.h"
 #include "Enemy.h"
 
 #include "Kismet/KismetMathLibrary.h"
@@ -26,7 +27,7 @@ APlayerCharacter::APlayerCharacter()
 
 	TeamId = FGenericTeamId(0);
 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/AnimStarterPack/UE4_Mannequin/Mesh/SK_Mannequin.SK_Mannequin'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/CharacterSkeletal/Ch15_nonPBR.Ch15_nonPBR'"));
 
 	if (tempMesh.Succeeded())
 	{
@@ -67,24 +68,24 @@ APlayerCharacter::APlayerCharacter()
 			sniperComp->SetRelativeScale3D(FVector(0.2f));
 		}
 
-		scopePlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("scopePlane"));
-		scopePlane->SetupAttachment(cameraComp);
-		scopeCaptureComponent = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("scopeCaptureComponent"));
-		scopeCaptureComponent->SetupAttachment(scopePlane);
-		scopeBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("scopeBack"));
-		scopeBack->SetupAttachment(scopePlane);
+		//scopePlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("scopePlane"));
+		//scopePlane->SetupAttachment(cameraComp);
+		//scopeCaptureComponent = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("scopeCaptureComponent"));
+		//scopeCaptureComponent->SetupAttachment(scopePlane);
+		//scopeBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("scopeBack"));
+		//scopeBack->SetupAttachment(scopePlane);
 
 
 	}
 	
 	//Rifle 컴포넌트 등록
-	rifleComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("rifleComp"));
+	rifleComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rifleComp"));
 
 	//부모 컴포넌트를 Mesh 컴포넌트로 설정
 	rifleComp->SetupAttachment(GetMesh(), TEXT("rifleSocket"));
 
 	// Rifle Static Mesh Data Load
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> rifleMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> rifleMesh(TEXT("/Script/Engine.StaticMesh'/Game/M4A1/M4A1.M4A1'"));
 	
 	// 데이터 로드가 성공했다면
 	if (rifleMesh.Succeeded())
@@ -92,9 +93,13 @@ APlayerCharacter::APlayerCharacter()
 		if (rifleComp != nullptr)
 		{
 			// 스태틱 메시 데이터를 할당한다.
-			rifleComp->SetSkeletalMesh(rifleMesh.Object);
+			rifleComp->SetStaticMesh(rifleMesh.Object);
 			// Rifle 위치 조정
-			rifleComp->SetRelativeLocationAndRotation(rifleLoc, FRotator(0, 90, 0));
+			//rifleComp->SetRelativeLocationAndRotation(FVector((-23.209405,  68.760827,  140.746834)), FRotator(0, 180, 0));
+
+			rifleComp->SetRelativeRotation(FRotator(0, -90, 0));
+			rifleComp->SetRelativeLocation(rrifleLoc);
+			rifleComp->SetRelativeScale3D(FVector(1.5, 2.0, 1.5));
 		}
 	}
 
@@ -112,9 +117,13 @@ void APlayerCharacter::BeginPlay()
 
 	crosshairUI = CreateWidget<UUserWidget>(GetWorld(), crosshairFactory);
 	crosshairUI->AddToViewport();
+
+	sniperUI = CreateWidget<UUserWidget>(GetWorld(), sniperFactory);
 	
 	ChangeToSniper();
-	OnActionZoomRelease();
+	//OnActionZoomRelease();
+
+
 	
 	
 }
@@ -171,6 +180,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &APlayerCharacter::OnActionDash);
 	// DashReleased 이벤트 함수 바인딩
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Released, this, &APlayerCharacter::OnActionDashReleased);
+	PlayerInputComponent->BindAction(TEXT("LookAround"), IE_Pressed, this, &APlayerCharacter::OnActionLookAroundPressed);
+	PlayerInputComponent->BindAction(TEXT("LookAround"), IE_Released, this, &APlayerCharacter::OnActionLookAroundReleased);
 
 
 }
@@ -194,13 +205,13 @@ void APlayerCharacter::OnAxisTurnRight(float value) {
 
 void APlayerCharacter::OnActionZoomIn() {
 	UE_LOG(LogTemp, Warning, TEXT("ZoomIn"))
-		scopeCaptureComponent->FOVAngle -= 3;
+		cameraComp->FieldOfView -= 3;
 		
 }
 
 void APlayerCharacter::OnActionZoomOut() {
 	UE_LOG(LogTemp, Warning, TEXT("ZoomOut"))
-		scopeCaptureComponent->FOVAngle += 3;
+		cameraComp->FieldOfView += 3;
 }
 
 void APlayerCharacter::OnActionJump() {
@@ -212,14 +223,20 @@ void APlayerCharacter::OnActionZoom() {
 
 	if (bUsingSniper == true)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), zoomInSound);
 		sniperComp->SetVisibility(false);
 		GetMesh()->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("Zooming"))
 			isZooming = true;
-		scopeCaptureComponent->SetVisibility(true);
-		scopePlane->SetVisibility(true);
-		scopeBack->SetVisibility(true);
+		//scopeCaptureComponent->SetVisibility(true);
+		//scopePlane->SetVisibility(true);
+		//scopeBack->SetVisibility(true);
+		sniperUI->AddToViewport();
+
+		cameraComp->SetFieldOfView(20.0f);
+
 		crosshairUI->RemoveFromParent();
+				
 	}
 	else
 	{
@@ -235,25 +252,29 @@ void APlayerCharacter::OnActionZoomRelease() {
 
 	if (bUsingSniper == true)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), zoomOutSound);
 		sniperComp->SetVisibility(true);
 		GetMesh()->SetVisibility(true);
+		sniperUI->RemoveFromParent();
 		crosshairUI->AddToViewport();
+		cameraComp->SetFieldOfView(90.0f);
 		UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
 			isZooming = false;
-		scopeCaptureComponent->SetVisibility(false);
-		scopeCaptureComponent->FOVAngle = 90.0;
-		scopePlane->SetVisibility(false);
-		scopeBack->SetVisibility(false);
+		//scopeCaptureComponent->SetVisibility(false);
+		//scopeCaptureComponent->FOVAngle = 90.0;
+		//scopePlane->SetVisibility(false);
+		//scopeBack->SetVisibility(false);
 	}
 	else
 	{
 		GetMesh()->SetVisibility(true);
+		sniperUI->RemoveFromParent();
 		cameraComp->FieldOfView = 90.0f;
 		isZooming = false;
-		scopeCaptureComponent->SetVisibility(false);
-		scopeCaptureComponent->FOVAngle = 90.0;
-		scopePlane->SetVisibility(false);
-		scopeBack->SetVisibility(false);
+		//scopeCaptureComponent->SetVisibility(false);
+		//scopeCaptureComponent->FOVAngle = 90.0;
+		//scopePlane->SetVisibility(false);
+		//scopeBack->SetVisibility(false);
 	}
 }
 
@@ -325,7 +346,20 @@ void APlayerCharacter::OnActionCrouch() {
 
  }
 
- void APlayerCharacter::OnFire() {
+void APlayerCharacter::OnActionLookAroundPressed()
+{
+	bUseControllerRotationYaw = false;
+	//GetCharacterMovement()->bOrientRotationToMovement = false;
+	
+}
+
+void APlayerCharacter::OnActionLookAroundReleased()
+{
+	bUseControllerRotationYaw = true;
+	//GetCharacterMovement()->bOrientRotationToMovement = true;
+}
+
+void APlayerCharacter::OnFire() {
 
 	 FTimerHandle dieTimerHandle;
 	 FTransform t = GetMesh()->GetSocketTransform(TEXT("sniperFire"));
@@ -341,7 +375,8 @@ void APlayerCharacter::OnActionCrouch() {
 	 
 	 if (bUsingSniper)
 	 {
-		 if (isZooming == true)
+		 UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+		  if (isZooming == true)
 		 {
 			 bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECollisionChannel::ECC_Visibility, params);
 			 if (bHit)
@@ -365,6 +400,7 @@ void APlayerCharacter::OnActionCrouch() {
 
 					 FVector force = forceDir * 500000 * hitComp->GetMass();
 					 hitComp->AddForce(force);
+					//auto enemy = Cast<AEnemy>()
 
 					 
 					 
@@ -418,3 +454,4 @@ void APlayerCharacter::OnActionCrouch() {
 
  }
 
+ 

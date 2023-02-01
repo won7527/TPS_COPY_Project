@@ -7,6 +7,10 @@
 #include "PlayerCharacter.h"
 #include <Kismet/GameplayStatics.h>
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "EnemyHp.h"
+#include "EnemyDistWidget.h"
+#include "Components/WidgetComponent.h"
+
 
 
 
@@ -17,28 +21,46 @@ AEnemy::AEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<UAnimSequence> defaultAnim(TEXT("/Script/Engine.AnimSequence'/Game/MyAnimation/Idle_Rifle_Hip.Idle_Rifle_Hip'"));
-	if (defaultAnim.Succeeded())
+	
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> TempAnim(TEXT("/Script/Engine.AnimBlueprint'/Game/TW_BP/ABP_Enemy.ABP_Enemy_C'"));
+	if (TempAnim.Succeeded())
 	{
-		DefaultAnim = defaultAnim.Object;
+		GetMesh()->SetAnimInstanceClass(TempAnim.Class);
 	}
-	static ConstructorHelpers::FObjectFinder<UAnimSequence> hittedAnim(TEXT("/Script/Engine.AnimSequence'/Game/MyAnimation/Hit_React_1.Hit_React_1'"));
-	if (hittedAnim.Succeeded())
+	GunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComp"));
+	GunMeshComp->SetupAttachment(GetMesh(), TEXT("RightHandSocket"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempGun(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Bundle/Weapons/Meshes/AR4/SK_AR4.SK_AR4'"));
+	if (TempGun.Succeeded())
 	{
-		HittedAnim = hittedAnim.Object;
-	}
-	static ConstructorHelpers::FObjectFinder<UAnimSequence> hittedBackAnim(TEXT("/Script/Engine.AnimSequence'/Game/MyAnimation/StandingDeathForward02_UE.StandingDeathForward02_UE'"));
-	if (hittedBackAnim.Succeeded())
-	{
-		HittedBackAnim = hittedBackAnim.Object;
-	}
-	static ConstructorHelpers::FObjectFinder<UAnimSequence> deadAnim(TEXT("/Script/Engine.AnimSequence'/Game/MyAnimation/Death_Ironsights_1.Death_Ironsights_1'"));
-	if (deadAnim.Succeeded())
-	{
-		DeadAnim = deadAnim.Object;
+		GunMeshComp->SetSkeletalMesh(TempGun.Object);
+		GunMeshComp->SetRelativeLocationAndRotation(FVector(-2.0f, -5.0f, 0.0f), FRotator(65.0f, 216.0f, 36.0f));
 	}
 	
+	EnemyHPBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBar"));
+	EnemyHPBar->SetupAttachment(GetMesh());
+	EnemyHPBar->SetRelativeLocation(FVector(0.0f, 0.0f, 120.0f));
+	EnemyHPBar->SetRelativeScale3D(FVector(0.5f));
+	EnemyHPBar->SetWidgetSpace(EWidgetSpace::World);
 	
+	ConstructorHelpers::FClassFinder<UUserWidget> HPBar(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/TW_BP/UI_EnemyHP.UI_EnemyHP_C'"));
+	if (HPBar.Succeeded())
+	{
+		EnemyHPBar->SetWidgetClass(HPBar.Class);
+	
+	}
+
+	EnemyDist = CreateDefaultSubobject<UWidgetComponent>(TEXT("Distance"));
+	EnemyDist->SetupAttachment(GetMesh());
+	EnemyDist->SetRelativeLocation(FVector(0.0f, 0.0f, 130.0f));
+	EnemyDist->SetRelativeScale3D(FVector(1.5f));
+	EnemyDist->SetWidgetSpace(EWidgetSpace::Screen);
+
+	ConstructorHelpers::FClassFinder<UUserWidget> Distance(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/TW_BP/UI_EnemyDist.UI_EnemyDist_C'"));
+	if (Distance.Succeeded())
+	{
+		EnemyDist->SetWidgetClass(Distance.Class);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -50,10 +72,8 @@ void AEnemy::BeginPlay()
 	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerCharacter::StaticClass());
 
 	target = Cast<APlayerCharacter>(actor);
-
-
 	
-	
+	EnemyDistWidg = Cast<UEnemyDistWidget>(EnemyDist->GetUserWidgetObject());
 }
 
 // Called every frame
@@ -61,6 +81,20 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	float IsBack = FVector::DotProduct(-GetActorForwardVector(), target->GetActorLocation() - GetActorLocation());
+	FRotator HPBarRot = (target->GetActorLocation() - GetActorLocation()).Rotation();
+	EnemyHPBar->SetWorldRotation(FRotator(0, HPBarRot.Yaw, 0));
+	int32 Dist = (target->GetActorLocation() - GetActorLocation()).Size()/100;
+
+	EnemyDistWidg->Point->SetText(FText::FromString(FString::Printf(TEXT("%dm"), Dist)));
+
+	if (Dist > 50 || Dist <= 3)
+	{
+		EnemyDist->SetVisibility(false);
+	}
+	else
+	{
+		EnemyDist->SetVisibility(true);
+	}
 
 	if (InRange && target)
 	{
@@ -72,24 +106,25 @@ void AEnemy::Tick(float DeltaTime)
 
 	if (CurrentHp < RightBeforeHp && IsBack < 0)
 	{
-		this->GetMesh()->PlayAnimation(HittedAnim, false);
+
 		RightBeforeHp = CurrentHp;
 		IsAttack = true;
+		IsPastAttack = true;
 
 	}
 	else if (CurrentHp < RightBeforeHp && IsBack >= 0)
 	{
-		this->GetMesh()->PlayAnimation(HittedBackAnim, false);
+		
 		RightBeforeHp = 0;
 		UE_LOG(LogTemp, Warning, TEXT("a"));
 		IsBackAttack = true;
 		FTimerHandle DecreasedHpTime;
-		FTimerHandle DestroyTime;
+		//FTimerHandle DestroyTime;
 		GetWorldTimerManager().SetTimer(DecreasedHpTime, this, &AEnemy::HPDecreased, 0.01f, true);
-		GetWorldTimerManager().SetTimer(DestroyTime, this, &AEnemy::Killed, 0.1f, false, 1.8f);
+		//GetWorldTimerManager().SetTimer(DestroyTime, this, &AEnemy::Killed, 0.1f, false, 1.8f);
 		
 	}
-
+	
 }
 
 // Called to bind functionality to input

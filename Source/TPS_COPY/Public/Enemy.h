@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Engine/TargetPoint.h"
 #include "EnemyAIController.h"
+#include "EnemyDistWidget.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -66,20 +67,24 @@ public:
 
 	int32 CurrentPoint = -1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UAnimSequence* DefaultAnim;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UAnimSequence* HittedAnim;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UAnimSequence* HittedBackAnim;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UAnimSequence* DeadAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class USkeletalMeshComponent* GunMeshComp;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsAttack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsBackAttack;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsPastAttack;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector HittedLocation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UWidgetComponent* EnemyHPBar;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UWidgetComponent* EnemyDist;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UEnemyDistWidget* EnemyDistWidg;
 	
 };

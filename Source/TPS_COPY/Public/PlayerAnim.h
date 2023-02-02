@@ -32,7 +32,15 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category=PlayerAnim)
 	class UAnimMontage* attackAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = PlayerAnim)
+		class UAnimMontage* reloadAnimMontage;
 	void PlayAttackAnim();
+	void PlayReloadAnim(FName sectionName);
+
+	UFUNCTION(BlueprintCallable)
+		void OnSniperReload();
+
 
 
 };

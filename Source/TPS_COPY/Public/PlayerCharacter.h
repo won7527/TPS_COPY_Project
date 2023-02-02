@@ -26,6 +26,8 @@ public:
 		return TeamId;
 	}
 
+	void OnMySniperReload();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -44,7 +46,7 @@ public:
 	class UCameraComponent* cameraComp;
 
 	// 스나이퍼 스켈레탈메시 추가
-	UPROPERTY(EditAnywhere, Category = SniperMesh)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SniperMesh)
 	class UStaticMeshComponent* sniperComp;
 
 	// 라이플 스켈레탈메시 추가
@@ -62,6 +64,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* bulletImpactFactory;
+
+	UPROPERTY(EditAnywhere)
+		class UParticleSystem* bloodImpactFactory;
 
 	UPROPERTY(EditAnywhere)
 		class UParticleSystem* fireSmokeFactory;
@@ -114,6 +119,7 @@ public:
 	void OnActionDashReleased();
 	void OnActionLookAroundPressed();
 	void OnActionLookAroundReleased();
+	void OnActionReload();
 
 	void OnFire();
 	
@@ -153,7 +159,10 @@ public:
 	void OneShot();
 
 	void ThrowBack(float deltaTime);
+
+	UPROPERTY(BlueprintReadOnly)
 	bool isZooming = false;
+//	UNiagaraSystem* niagaraTemplate;
 	
 	UPROPERTY(EditAnywhere, Category=PlayerSetting)
 	float walkSpeed = 200;
@@ -167,5 +176,26 @@ public:
 		FVector rrifleLoc = FVector(3.790621, 53.665231, 0.000000);
 
 	class AMyPlayerController* PlayerController;
+
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
+	//int maxRifleAmmo = 20;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
+	//int rifleAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
+	int maxSniperAmmo = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
+	int sniperAmmo;
+	UFUNCTION(BlueprintImplementableEvent)
+	void SniperHitTrail();
+	UFUNCTION(BlueprintImplementableEvent)
+	void SniperNotHitTrail();
+	UPROPERTY(BlueprintReadOnly)
+	FVector_NetQuantize sniperImpactPoint;
+	UPROPERTY(BlueprintReadOnly)
+	FVector_NetQuantize	sniperTraceEnd;
+	UPROPERTY(BlueprintReadOnly)
+	FVector end;
 
 };

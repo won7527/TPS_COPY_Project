@@ -14,6 +14,7 @@
 #include "Components/StaticMeshComponent.h"
 #include <Kismet/GameplayStatics.h>
 #include "GameFramework/PlayerController.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Enemy.h"
 #include "MyPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -48,22 +49,22 @@ APlayerCharacter::APlayerCharacter()
 	cameraComp->bUsePawnControlRotation = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	// Sniper ÄÄÆ÷³ÍÆ® µî·Ï
+	// Sniper ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½
 	sniperComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("sniperComp"));
 
-	// ºÎ¸ð ÄÄÆ÷³ÍÆ®¸¦ Mesh ÄÄÆ÷³ÍÆ®·Î ¼³Á¤
+	// ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ Mesh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	sniperComp->SetupAttachment(GetMesh(), TEXT("sniperSocket"));
 
 	// Sniper Static Mesh Data Load
 	ConstructorHelpers::FObjectFinder<UStaticMesh> sniperMesh(TEXT("/Script/Engine.StaticMesh'/Game/SniperGun/sniper1.sniper1'"));
 	
-	// µ¥ÀÌÅÍ ·Îµå°¡ ¼º°øÇß´Ù¸é
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµå°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ß´Ù¸ï¿½
 	if (sniperMesh.Succeeded())
-	{	// ½ºÅÂÆ½ ¸Þ½Ã µ¥ÀÌÅÍ¸¦ ÇÒ´çÇÑ´Ù.
+	{	// ï¿½ï¿½ï¿½ï¿½Æ½ ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Ò´ï¿½ï¿½Ñ´ï¿½.
 		if (sniperComp != nullptr)
 		{
 			sniperComp->SetStaticMesh(sniperMesh.Object);
-			// Sniper À§Ä¡ Á¶Á¤
+			// Sniper ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
 			sniperComp->SetRelativeLocationAndRotation(sniperLoc, FRotator(0, 0, 0));
 			sniperComp->SetRelativeScale3D(FVector(0.2f));
 		}
@@ -78,23 +79,23 @@ APlayerCharacter::APlayerCharacter()
 
 	}
 	
-	//Rifle ÄÄÆ÷³ÍÆ® µî·Ï
+	//Rifle ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½
 	rifleComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rifleComp"));
 
-	//ºÎ¸ð ÄÄÆ÷³ÍÆ®¸¦ Mesh ÄÄÆ÷³ÍÆ®·Î ¼³Á¤
+	//ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ Mesh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	rifleComp->SetupAttachment(GetMesh(), TEXT("rifleSocket"));
 
 	// Rifle Static Mesh Data Load
 	ConstructorHelpers::FObjectFinder<UStaticMesh> rifleMesh(TEXT("/Script/Engine.StaticMesh'/Game/M4A1/M4A1.M4A1'"));
 	
-	// µ¥ÀÌÅÍ ·Îµå°¡ ¼º°øÇß´Ù¸é
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµå°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ß´Ù¸ï¿½
 	if (rifleMesh.Succeeded())
 	{
 		if (rifleComp != nullptr)
 		{
-			// ½ºÅÂÆ½ ¸Þ½Ã µ¥ÀÌÅÍ¸¦ ÇÒ´çÇÑ´Ù.
+			// ï¿½ï¿½ï¿½ï¿½Æ½ ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Ò´ï¿½ï¿½Ñ´ï¿½.
 			rifleComp->SetStaticMesh(rifleMesh.Object);
-			// Rifle À§Ä¡ Á¶Á¤
+			// Rifle ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
 			//rifleComp->SetRelativeLocationAndRotation(FVector((-23.209405,  68.760827,  140.746834)), FRotator(0, 180, 0));
 
 			rifleComp->SetRelativeRotation(FRotator(0, -90, 0));
@@ -108,10 +109,17 @@ APlayerCharacter::APlayerCharacter()
 
 }
 
+void APlayerCharacter::OnMySniperReload()
+{
+	sniperAmmo = maxSniperAmmo;
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	sniperAmmo = 10;
 
 	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
@@ -122,7 +130,12 @@ void APlayerCharacter::BeginPlay()
 	
 	ChangeToSniper();
 	//OnActionZoomRelease();
+
 	PlayerController = Cast<AMyPlayerController>(GetController());
+
+
+	
+
 
 	
 	
@@ -170,27 +183,28 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Look Up"), this, &APlayerCharacter::OnAxisLookUp);
 	PlayerInputComponent->BindAxis(TEXT("Turn Right"), this, &APlayerCharacter::OnAxisTurnRight);
 
-	// ZoomInAxis ÀÌº¥Æ® Ã³¸® ÇÔ¼ö ¹ÙÀÎµù
+	// ZoomInAxis ï¿½Ìºï¿½Æ® Ã³ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	PlayerInputComponent->BindAction(TEXT("ZoomIn"), IE_Pressed, this, &APlayerCharacter::OnActionZoomIn);
 	PlayerInputComponent->BindAction(TEXT("ZoomOut"), IE_Pressed, this, &APlayerCharacter::OnActionZoomOut);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &APlayerCharacter::OnActionJump);
-	// Crouch ÀÌº¥Æ® Ã³¸® ÇÔ¼ö ¹ÙÀÎµù	
+	// Crouch ï¿½Ìºï¿½Æ® Ã³ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½	
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &APlayerCharacter::OnActionCrouch);
-	// Crouch ÀÌº¥Æ® ÇØÁ¦ ÇÔ¼ö ¹ÙÀÎµù
+	// Crouch ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &APlayerCharacter::OnActionCrouchRelease);
-	// Zoom ÀÌº¥Æ® ÇÔ¼ö ¹ÙÀÎµù
+	// Zoom ï¿½Ìºï¿½Æ® ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Pressed, this, &APlayerCharacter::OnActionZoom);
 	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Released, this, &APlayerCharacter::OnActionZoomRelease);
-	// Fire ÀÌº¥Æ® ÇÔ¼ö ¹ÙÀÎµù
+	// Fire ï¿½Ìºï¿½Æ® ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &APlayerCharacter::OnActionFire);
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &APlayerCharacter::OnActionFireRelease);
-	// Sniper ½º¿Ò ÀÌº¥Æ® ÇÔ¼ö ¹ÙÀÎµù
+	// Sniper ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	PlayerInputComponent->BindAction(TEXT("Sniper"),  IE_Pressed, this, &APlayerCharacter::ChangeToSniper);
-	// Rifle ½º¿Ò ÀÌº¥Æ® ÇÔ¼ö ¹ÙÀÎµù
+	// Rifle ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	PlayerInputComponent->BindAction(TEXT("Rifle"), IE_Pressed, this, &APlayerCharacter::ChangeToRifle);
-	// Dash ÀÌº¥Æ® ÇÔ¼ö ¹ÙÀÎµù
+	// Dash ï¿½Ìºï¿½Æ® ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &APlayerCharacter::OnActionDash);
-	// DashReleased ÀÌº¥Æ® ÇÔ¼ö ¹ÙÀÎµù
+	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &APlayerCharacter::OnActionReload);
+	// DashReleased ï¿½Ìºï¿½Æ® ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Released, this, &APlayerCharacter::OnActionDashReleased);
 	PlayerInputComponent->BindAction(TEXT("LookAround"), IE_Pressed, this, &APlayerCharacter::OnActionLookAroundPressed);
 	PlayerInputComponent->BindAction(TEXT("LookAround"), IE_Released, this, &APlayerCharacter::OnActionLookAroundReleased);
@@ -216,13 +230,13 @@ void APlayerCharacter::OnAxisTurnRight(float value) {
 }
 
 void APlayerCharacter::OnActionZoomIn() {
-	UE_LOG(LogTemp, Warning, TEXT("ZoomIn"))
+	//UE_LOG(LogTemp, Warning, TEXT("ZoomIn"))
 		cameraComp->FieldOfView -= 3;
 		
 }
 
 void APlayerCharacter::OnActionZoomOut() {
-	UE_LOG(LogTemp, Warning, TEXT("ZoomOut"))
+	//UE_LOG(LogTemp, Warning, TEXT("ZoomOut"))
 		cameraComp->FieldOfView += 3;
 }
 
@@ -238,7 +252,7 @@ void APlayerCharacter::OnActionZoom() {
 		UGameplayStatics::PlaySound2D(GetWorld(), zoomInSound);
 		sniperComp->SetVisibility(false);
 		GetMesh()->SetVisibility(false);
-		UE_LOG(LogTemp, Warning, TEXT("Zooming"))
+		//UE_LOG(LogTemp, Warning, TEXT("Zooming"))
 			isZooming = true;
 		//scopeCaptureComponent->SetVisibility(true);
 		//scopePlane->SetVisibility(true);
@@ -270,7 +284,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 		sniperUI->RemoveFromParent();
 		crosshairUI->AddToViewport();
 		cameraComp->SetFieldOfView(90.0f);
-		UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
+		//UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
 			isZooming = false;
 		//scopeCaptureComponent->SetVisibility(false);
 		//scopeCaptureComponent->FOVAngle = 90.0;
@@ -305,6 +319,7 @@ void APlayerCharacter::OnActionCrouch() {
 		 OneShot();
 		 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 		 anim->PlayAttackAnim();
+		 
 		
 			
 	 }
@@ -335,7 +350,7 @@ void APlayerCharacter::OnActionCrouch() {
 	 sniperComp->SetVisibility(true);
 	 rifleComp->SetVisibility(false);
 
-	 UE_LOG(LogTemp, Warning, TEXT("Sniper"))
+	 //UE_LOG(LogTemp, Warning, TEXT("Sniper"))
  }
  
  void APlayerCharacter::ChangeToRifle() {
@@ -343,7 +358,7 @@ void APlayerCharacter::OnActionCrouch() {
 	 sniperComp->SetVisibility(false);
 	 rifleComp->SetVisibility(true);
 
-	 UE_LOG(LogTemp, Warning, TEXT("Rifle"))
+	 //UE_LOG(LogTemp, Warning, TEXT("Rifle"))
 
  }
 
@@ -371,6 +386,21 @@ void APlayerCharacter::OnActionLookAroundReleased()
 	//GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
+void APlayerCharacter::OnActionReload()
+{
+	if(bUsingSniper == true)
+	{
+		auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+		anim->PlayReloadAnim(TEXT("SniperReload"));
+		UE_LOG(LogTemp, Warning, TEXT("%d"), sniperAmmo)
+	}
+	else
+	{
+		return;
+	}
+
+}
+
 void APlayerCharacter::OnFire() {
 
 	 FTimerHandle dieTimerHandle;
@@ -380,19 +410,40 @@ void APlayerCharacter::OnFire() {
 	 FVector rifleFireLoc = s.GetLocation();
 	 FHitResult hitInfo;
 	 FVector start = cameraComp->GetComponentLocation();
-	 FVector end = start + cameraComp->GetForwardVector() * 100000;
+	 end = start + cameraComp->GetForwardVector() * 100000;
 	 FCollisionQueryParams params;
 	 params.AddIgnoredActor(this);
+	UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+	//auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass());
+
+	//auto target = Cast<AEnemy>(actor);
+
 	
-	 
+	
 	 if (bUsingSniper)
 	 {
-		 UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Ñ¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Í´ï¿½.
+		if(sniperAmmo>0)
+		{
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½ 1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Í´ï¿½.
+			sniperAmmo--;
+		}
+		else
+		{
+			 //ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°Ú´ï¿½.
+			return;
+		}
+		 auto controller = GetWorld()->GetFirstPlayerController();
+		 controller->PlayerCameraManager->StartCameraShake(cameraShake);
 		  if (isZooming == true)
 		 {
 			 bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECollisionChannel::ECC_Visibility, params);
+			 AEnemy* hittedActor = Cast<AEnemy>(hitInfo.GetActor());
+			 sniperImpactPoint = hitInfo.ImpactPoint;
+			 sniperTraceEnd = hitInfo.TraceEnd;
 			 if (bHit)
 			 {
+
 				 auto hitComp = hitInfo.GetComponent();
 				 AEnemy* HittedActor = Cast<AEnemy>(hitInfo.GetActor());
 				 if(HittedActor)
@@ -401,45 +452,70 @@ void APlayerCharacter::OnFire() {
 				 }
 				 FTransform trans(hitInfo.ImpactPoint);
 				 /*auto decalLoc = hitInfo.Location;
+
+				 SniperHitTrail();
+				 //auto hitComp = hitInfo.GetComponent();
+				 //auto hitEnemy = hitInfo.GetActor();
+			 	;
+				 FTransform trans(hitInfo.ImpactPoint);				
+			
+				 if(hittedActor)
+				//if(hitInfo.GetActor()->GetClass()->GetName() == "BP_Enemy_C")
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bloodImpactFactory, trans);
+				
+					hittedActor->SniperHit();
+				}
+				else
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
+				}
+
+				// bool isActor = Cast<AEnemy>(Get)
+
+			 	/*auto decalLoc = hitInfo.Location;
+
 				 auto hitIN = hitInfo.ImpactNormal;
 				 auto hitRot = UKismetMathLibrary::Conv_VectorToRotator(hitIN);
 				 auto decalRot = UKismetMathLibrary::MakeTransform(hitInfo.Location, hitRot);
 				
 				 UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decalFactory, FVector(1, 1, 1), decalLoc, hitRot);*/
-				 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
-				 if (hitComp != nullptr && hitComp->IsSimulatingPhysics())
-				 {
+				// if(hitInfo==)
+			 	
+				 //if (hitComp != nullptr && hitComp->IsSimulatingPhysics())
+				 //{
 					 //FVector force = -hitInfo.ImpactNormal * hitComp->GetMass();
 					// hitComp->AddForce(force);
-					 UE_LOG(LogTemp, Warning, TEXT("ischased"))
-					 FVector forceDir = (hitInfo.TraceEnd - hitInfo.TraceStart).GetSafeNormal();
+					 //UE_LOG(LogTemp, Warning, TEXT("ischased"))
+					 //FVector forceDir = (hitInfo.TraceEnd - hitInfo.TraceStart).GetSafeNormal();
 
-					 FVector force = forceDir * 500000 * hitComp->GetMass();
-					 hitComp->AddForce(force);
+					 //FVector force = forceDir * 500000 * hitComp->GetMass();
+					 //hitComp->AddForce(force);
 					//auto enemy = Cast<AEnemy>()
 
 					 
 					 
-				 }
+				 //}
 			 }
 		 }
 		 else {
-			 int32 randomBulletYaw = FMath::RandRange(1, 20);
-			 int32 randomBulletPitch = FMath::RandRange(1, 20);
-			 FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
+			  SniperNotHitTrail();
+			 //int32 randomBulletYaw = FMath::RandRange(1, 20);
+			 //int32 randomBulletPitch = FMath::RandRange(1, 20);
+			 //FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
 
-			 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation() + randomBullet);
+			 //GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation() + randomBullet);
 
-			 auto controller = GetWorld()->GetFirstPlayerController();
-			 controller->PlayerCameraManager->StartCameraShake(cameraShake);
+			 
 		 }
 	 }
 	 else {
-		 int32 randomBulletYaw = FMath::RandRange(1, 10);
-		 int32 randomBulletPitch = FMath::RandRange(1, 10);
-		 FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
 
-		 GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, rifleFireLoc, cameraComp->GetComponentRotation() + randomBullet);
+		 //int32 randomBulletYaw = FMath::RandRange(1, 10);
+		 //int32 randomBulletPitch = FMath::RandRange(1, 10);
+		 //FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
+
+		 //GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, rifleFireLoc, cameraComp->GetComponentRotation() + randomBullet);
 	 }
 
 		
@@ -447,12 +523,11 @@ void APlayerCharacter::OnFire() {
 
  void APlayerCharacter::OneShot() {
 	 if (count == 1) {
-		 UE_LOG(LogTemp, Warning, TEXT("SniperFire"))
+		 //UE_LOG(LogTemp, Warning, TEXT("SniperFire"))
 			 OnFire();
 			 count = 0;
-			 //Ä«¸Þ¶ó ¼ÎÀÌÅ© Àç»ý
-			 auto controller = GetWorld()->GetFirstPlayerController();
-			 controller->PlayerCameraManager->StartCameraShake(cameraShake);
+			 //Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½Å© ï¿½ï¿½ï¿½
+			 
 	 }
 
  }
@@ -463,7 +538,7 @@ void APlayerCharacter::OnFire() {
 		 if (curTime >= 2.0f)
 		 {
 			 count = 1;
-			 UE_LOG(LogTemp, Warning, TEXT("Reload"))
+			 //UE_LOG(LogTemp, Warning, TEXT("Reload"))
 				 curTime = 0;
 		 }
 	 }

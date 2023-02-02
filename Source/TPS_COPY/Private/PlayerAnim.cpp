@@ -34,5 +34,19 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds) {
 }
 
 void UPlayerAnim::PlayAttackAnim() {
-	Montage_Play(attackAnimMontage);
+	
+	APlayerCharacter* owner = Cast<APlayerCharacter>(TryGetPawnOwner());
+	owner->PlayAnimMontage(attackAnimMontage, 1, TEXT("Default"));
+}
+
+void UPlayerAnim::PlayReloadAnim(FName sectionName)
+{
+	APlayerCharacter* owner = Cast<APlayerCharacter>(TryGetPawnOwner());
+	owner->PlayAnimMontage(attackAnimMontage, 1, sectionName);
+}
+
+void UPlayerAnim::OnSniperReload()
+{
+	APlayerCharacter* owner = Cast<APlayerCharacter>(TryGetPawnOwner());
+	owner->OnMySniperReload();
 }

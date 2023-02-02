@@ -214,3 +214,8 @@ void AEnemy::RifleHit()
 {
 	CurrentHp -= 5;
 }
+
+void AEnemy::SniperHit()
+{
+	CurrentHp -= 70;
+}

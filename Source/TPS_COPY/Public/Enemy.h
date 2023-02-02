@@ -54,6 +54,8 @@ public:
 	void HPDecreased();
 	UFUNCTION(BlueprintCallable)
 	void RifleHit();
+	UFUNCTION(BlueprintCallable)
+	void SniperHit();
 
 
 	UPROPERTY(EditAnywhere)

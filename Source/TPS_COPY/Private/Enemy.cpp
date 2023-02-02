@@ -21,8 +21,18 @@ AEnemy::AEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	
+	ConstructorHelpers::FObjectFinder<UAnimSequence> DeathAnim1(TEXT("/Script/Engine.AnimSequence'/Game/Characters/EnemyMesh/Animation/Death_From_Front_Headshot.Death_From_Front_Headshot'"));
+	if (DeathAnim1.Succeeded())
+	{
+		DeadAnim1 = DeathAnim1.Object;
+	}
 
+	ConstructorHelpers::FObjectFinder<UAnimSequence> DeathAnim2(TEXT("/Script/Engine.AnimSequence'/Game/Characters/EnemyMesh/Animation/Death_From_The_Front.Death_From_The_Front'"));
+	if (DeathAnim2.Succeeded())
+	{
+		DeadAnim2 = DeathAnim2.Object;
+	}
+	
 	static ConstructorHelpers::FClassFinder<UAnimInstance> TempAnim(TEXT("/Script/Engine.AnimBlueprint'/Game/TW_BP/ABP_Enemy.ABP_Enemy_C'"));
 	if (TempAnim.Succeeded())
 	{
@@ -74,6 +84,8 @@ void AEnemy::BeginPlay()
 	target = Cast<APlayerCharacter>(actor);
 	
 	EnemyDistWidg = Cast<UEnemyDistWidget>(EnemyDist->GetUserWidgetObject());
+
+	AIController = Cast<AEnemyAIController>(GetController());
 }
 
 // Called every frame
@@ -104,7 +116,7 @@ void AEnemy::Tick(float DeltaTime)
 	}
 	
 
-	if (CurrentHp < RightBeforeHp && IsBack < 0)
+	if (CurrentHp < RightBeforeHp && IsBack < 0 && CurrentHp > 0)
 	{
 
 		RightBeforeHp = CurrentHp;
@@ -119,10 +131,28 @@ void AEnemy::Tick(float DeltaTime)
 		UE_LOG(LogTemp, Warning, TEXT("a"));
 		IsBackAttack = true;
 		FTimerHandle DecreasedHpTime;
-		//FTimerHandle DestroyTime;
+		FTimerHandle DestroyTime;
 		GetWorldTimerManager().SetTimer(DecreasedHpTime, this, &AEnemy::HPDecreased, 0.01f, true);
-		//GetWorldTimerManager().SetTimer(DestroyTime, this, &AEnemy::Killed, 0.1f, false, 1.8f);
+		GetWorldTimerManager().SetTimer(DestroyTime, this, &AEnemy::Killed, 0.1f, false, 5.0f);
 		
+	}
+	else if (CurrentHp <= 0 && IsBack < 0 && !DuringDie)
+	{
+		AIController->StopMovement();
+		DuringDie = true;
+		int32 RandDead = FMath::RandRange(0, 1);
+		if (RandDead == 0)
+		{
+			GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+			GetMesh()->PlayAnimation(DeadAnim1, false);
+		}
+		else if (RandDead == 1)
+		{
+			GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+			GetMesh()->PlayAnimation(DeadAnim2, false);
+		}
+		FTimerHandle DestroyTime;
+		GetWorldTimerManager().SetTimer(DestroyTime, this, &AEnemy::Killed, 0.1f, false, 5.0f);
 	}
 	
 }

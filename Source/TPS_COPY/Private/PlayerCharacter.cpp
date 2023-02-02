@@ -15,7 +15,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "GameFramework/PlayerController.h"
 #include "Enemy.h"
-
+#include "MyPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -122,7 +122,7 @@ void APlayerCharacter::BeginPlay()
 	
 	ChangeToSniper();
 	//OnActionZoomRelease();
-
+	PlayerController = Cast<AMyPlayerController>(GetController());
 
 	
 	
@@ -144,7 +144,19 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 
 	ThrowBack(DeltaTime);
+	if (isZooming)
+	{
+		PlayerController->UIWeapon->ZoomSet();
+	}
 
+	else if (!bUsingSniper)
+	{
+		PlayerController->UIWeapon->RifleSet();
+	}
+	else if (bUsingSniper)
+	{
+		PlayerController->UIWeapon->SniperSet();
+	}
 
 }
 
@@ -382,7 +394,11 @@ void APlayerCharacter::OnFire() {
 			 if (bHit)
 			 {
 				 auto hitComp = hitInfo.GetComponent();
-				 
+				 AEnemy* HittedActor = Cast<AEnemy>(hitInfo.GetActor());
+				 if(HittedActor)
+				 {
+					 HittedActor->RifleHit();
+				 }
 				 FTransform trans(hitInfo.ImpactPoint);
 				 /*auto decalLoc = hitInfo.Location;
 				 auto hitIN = hitInfo.ImpactNormal;

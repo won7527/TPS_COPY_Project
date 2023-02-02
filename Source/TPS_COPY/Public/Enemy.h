@@ -87,4 +87,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UEnemyDistWidget* EnemyDistWidg;
 	
+	class AEnemyAIController* AIController;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimSequence* DeadAnim1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimSequence* DeadAnim2;
+	
+	bool DuringDie;
+
 };

@@ -166,5 +166,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = PlayerSetting)
 		FVector rrifleLoc = FVector(3.790621, 53.665231, 0.000000);
 
+	class AMyPlayerController* PlayerController;
 
 };

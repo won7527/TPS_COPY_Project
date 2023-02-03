@@ -100,6 +100,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
 		class USoundBase* zoomOutSound;;
 
+	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
+		class USoundBase* emptySound;
 	
 
 	void OnAxisHorizontal(float value);
@@ -141,8 +143,14 @@ public:
 	UPROPERTY(EditAnywhere)		
 	TSubclassOf<class UUserWidget> crosshairFactory;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> hitAimFactory;
+
 	UPROPERTY()
 	class UUserWidget* crosshairUI;
+
+	UPROPERTY(BlueprintReadOnly)
+		class UUserWidget* hitUI;
 
 
 	float sniperFireInterval = 3.1f;

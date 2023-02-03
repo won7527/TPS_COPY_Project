@@ -1,0 +1,19 @@
+﻿Build started...
+1>------ Build started: Project: TPS_COPY, Configuration: Development_Editor x64 ------
+1>Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" TPS_COPYEditor Win64 Development -Project="C:\Users\SBAuser\Desktop\UE Projects\TPS_COPY_Project\TPS_COPY.uproject" -WaitMutex -FromMsBuild
+1>Log file: C:\Users\SBAuser\AppData\Local\UnrealBuildTool\Log.txt
+1>Using 'git status' to determine working set for adaptive non-unity build (C:\Users\SBAuser\Desktop\UE Projects\TPS_COPY_Project).
+1>Building TPS_COPYEditor...
+1>Using Visual Studio 2019 14.29.30147 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133) and Windows 10.0.19041.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+1>Determining max actions to execute in parallel (12 physical cores, 20 logical cores)
+1>  Executing up to 12 processes, one per physical core
+1>Building 4 actions with 4 processes...
+1>[1/4] Compile PlayerCharacter.cpp
+1>[2/4] Link UnrealEditor-TPS_COPY-0005.lib
+1>   Creating library C:\Users\SBAuser\Desktop\UE Projects\TPS_COPY_Project\Intermediate\Build\Win64\UnrealEditor\Development\TPS_COPY\UnrealEditor-TPS_COPY-0005.lib and object C:\Users\SBAuser\Desktop\UE Projects\TPS_COPY_Project\Intermediate\Build\Win64\UnrealEditor\Development\TPS_COPY\UnrealEditor-TPS_COPY-0005.exp
+1>[3/4] Link UnrealEditor-TPS_COPY-0005.dll
+1>   Creating library C:\Users\SBAuser\Desktop\UE Projects\TPS_COPY_Project\Intermediate\Build\Win64\UnrealEditor\Development\TPS_COPY\UnrealEditor-TPS_COPY-0005.suppressed.lib and object C:\Users\SBAuser\Desktop\UE Projects\TPS_COPY_Project\Intermediate\Build\Win64\UnrealEditor\Development\TPS_COPY\UnrealEditor-TPS_COPY-0005.suppressed.exp
+1>[4/4] WriteMetadata TPS_COPYEditor.target
+1>Total time in Parallel executor: 12.11 seconds
+1>Total execution time: 12.78 seconds
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========

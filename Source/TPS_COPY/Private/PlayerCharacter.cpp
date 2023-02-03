@@ -17,6 +17,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Enemy.h"
 #include "MyPlayerController.h"
+#include "Animation/AnimInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -51,9 +52,11 @@ APlayerCharacter::APlayerCharacter()
 
 	// Sniper ������Ʈ ���
 	sniperComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("sniperComp"));
+	sniperBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("sniperBack"));
 
 	// �θ� ������Ʈ�� Mesh ������Ʈ�� ����
 	sniperComp->SetupAttachment(GetMesh(), TEXT("sniperSocket"));
+	sniperBack->SetupAttachment(GetMesh(), TEXT("sniperSocket"));
 
 	// Sniper Static Mesh Data Load
 	ConstructorHelpers::FObjectFinder<UStaticMesh> sniperMesh(TEXT("/Script/Engine.StaticMesh'/Game/SniperGun/sniper1.sniper1'"));
@@ -81,9 +84,11 @@ APlayerCharacter::APlayerCharacter()
 	
 	//Rifle ������Ʈ ���
 	rifleComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rifleComp"));
+	rifleBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rifleBack"));
 
 	//�θ� ������Ʈ�� Mesh ������Ʈ�� ����
 	rifleComp->SetupAttachment(GetMesh(), TEXT("rifleSocket"));
+	rifleBack->SetupAttachment(GetMesh(), TEXT("rifleSocket"));
 
 	// Rifle Static Mesh Data Load
 	ConstructorHelpers::FObjectFinder<UStaticMesh> rifleMesh(TEXT("/Script/Engine.StaticMesh'/Game/M4A1/M4A1.M4A1'"));
@@ -119,7 +124,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	sniperAmmo = 10;
+	sniperAmmo = maxSniperAmmo;
 
 	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
@@ -132,7 +137,7 @@ void APlayerCharacter::BeginPlay()
 	ChangeToSniper();
 	//OnActionZoomRelease();
 
-	PlayerController = Cast<AMyPlayerController>(GetController());
+		PlayerController = Cast<AMyPlayerController>(GetController());
 
 
 	
@@ -231,14 +236,27 @@ void APlayerCharacter::OnAxisTurnRight(float value) {
 }
 
 void APlayerCharacter::OnActionZoomIn() {
-	//UE_LOG(LogTemp, Warning, TEXT("ZoomIn"))
-		cameraComp->FieldOfView -= 3;
+	if (bUsingSniper)
+	{
+		if (isZooming)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)			
+				cameraComp->FieldOfView -= 3;
+		}
+	}
 		
 }
 
 void APlayerCharacter::OnActionZoomOut() {
-	//UE_LOG(LogTemp, Warning, TEXT("ZoomOut"))
-		cameraComp->FieldOfView += 3;
+	if (bUsingSniper)
+	{
+		if (isZooming)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)
+			
+				cameraComp->FieldOfView += 3;			
+		}
+	}
 }
 
 void APlayerCharacter::OnActionJump() {
@@ -347,17 +365,37 @@ void APlayerCharacter::OnActionCrouch() {
  }
 
  void APlayerCharacter::ChangeToSniper() {
+
+	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+	 
+	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
+	 if (isMontagePlaying)
+	 {
+		 return;
+	 }
+	 anim->PlaySwapAnim();
 	 bUsingSniper = true;
 	 sniperComp->SetVisibility(true);
 	 rifleComp->SetVisibility(false);
+	 //sniperBack->SetVisibility(false);
+	 //rifleBack->SetVisibility(true);
 
 	 //UE_LOG(LogTemp, Warning, TEXT("Sniper"))
  }
  
  void APlayerCharacter::ChangeToRifle() {
+	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
+	 if (isMontagePlaying)
+	 {
+		 return;
+	 }
+	 anim->PlaySwapAnim();
 	 bUsingSniper = false;
 	 sniperComp->SetVisibility(false);
 	 rifleComp->SetVisibility(true);
+	 //sniperBack->SetVisibility(true);
+	 //rifleBack->SetVisibility(false);
 
 	 //UE_LOG(LogTemp, Warning, TEXT("Rifle"))
 
@@ -391,9 +429,21 @@ void APlayerCharacter::OnActionReload()
 {
 	if(bUsingSniper == true)
 	{
-		auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
-		anim->PlayReloadAnim(TEXT("SniperReload"));
+		if(sniperAmmo==maxSniperAmmo)
+		{
+			return;
+		}
 		UE_LOG(LogTemp, Warning, TEXT("%d"), sniperAmmo)
+		auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+		bool  isMontagePlaying = anim->Montage_IsPlaying(anim->attackAnimMontage);
+		if(isMontagePlaying)
+		{
+			return;
+		}
+
+		anim->PlayReloadAnim(TEXT("SniperReload"));
+		UGameplayStatics::PlaySound2D(GetWorld(), reloadSound);
+
 	}
 	else
 	{
@@ -423,7 +473,7 @@ void APlayerCharacter::OnFire() {
 	
 	 if (bUsingSniper)
 	 {
-		//���� �� �� �Ѿ��� �����ִ��� �����ϰ� �ʹ�.
+		//
 		if(sniperAmmo>0)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
@@ -442,6 +492,7 @@ void APlayerCharacter::OnFire() {
 			 AEnemy* hittedActor = Cast<AEnemy>(hitInfo.GetActor());
 			 sniperImpactPoint = hitInfo.ImpactPoint;
 			 sniperTraceEnd = hitInfo.TraceEnd;
+			//sniperImpactNormal = hitInfo.ImpactNormal
 		  	FTransform trans(hitInfo.ImpactPoint);
 			 if (bHit)
 			 {
@@ -543,11 +594,14 @@ void APlayerCharacter::OnFire() {
  void APlayerCharacter::ThrowBack(float deltaTime) {
 	 if (count == 0) {
 		 curTime += deltaTime;
-		 if (curTime >= 2.0f)
+		 if (curTime >= 1.5f)
 		 {
-			 count = 1;
-			 //UE_LOG(LogTemp, Warning, TEXT("Reload"))
+			 UGameplayStatics::PlaySound2D(GetWorld(), reloadBulletSound);
+			 
+				 count = 1;
+				 //UE_LOG(LogTemp, Warning, TEXT("Reload"))
 				 curTime = 0;
+			 
 		 }
 	 }
 

@@ -29,5 +29,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Printsomething();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsRange = false;
 };
 

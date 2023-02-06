@@ -98,7 +98,7 @@ void AEnemy::Tick(float DeltaTime)
 	int32 Dist = (target->GetActorLocation() - GetActorLocation()).Size()/100;
 
 	EnemyDistWidg->Point->SetText(FText::FromString(FString::Printf(TEXT("%dm"), Dist)));
-
+	InRange = AIController->IsRange;
 	if (Dist > 50 || Dist <= 3)
 	{
 		EnemyDist->SetVisibility(false);
@@ -112,7 +112,11 @@ void AEnemy::Tick(float DeltaTime)
 	{
 		FRotator HeadToTarget = (target->GetActorLocation() - GetActorLocation()).Rotation();
 		SetActorRotation(HeadToTarget);
-		//UE_LOG(LogTemp, Warning, TEXT("a"));
+		UE_LOG(LogTemp, Warning, TEXT("a"));
+	}
+	else if (!InRange)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("b"));
 	}
 	
 
@@ -170,6 +174,17 @@ void AEnemy::Attack()
 	InRange = true;
 	FCollisionQueryParams param;
 	param.AddIgnoredActor(this);
+	StartTrace = GetActorLocation() + GetActorForwardVector() * 100;
+	if ((target->GetActorLocation() - GetActorLocation()).Size() < FireRange)
+	{
+		EndTrace = target->GetActorLocation();
+		UE_LOG(LogTemp, Warning, TEXT("asd"));
+	}
+	else
+	{
+		EndTrace = GetActorLocation() + GetActorForwardVector() * FireRange;
+		UE_LOG(LogTemp, Warning, TEXT("asda"));
+	}
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, param);
 	if (bHit)

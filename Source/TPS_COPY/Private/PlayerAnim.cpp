@@ -39,6 +39,12 @@ void UPlayerAnim::PlayAttackAnim() {
 	owner->PlayAnimMontage(attackAnimMontage, 1, TEXT("Default"));
 }
 
+void UPlayerAnim::PlaySwapAnim()
+{
+	APlayerCharacter* owner = Cast<APlayerCharacter>(TryGetPawnOwner());
+	owner->PlayAnimMontage(attackAnimMontage, 1, TEXT("Swap"));
+}
+
 void UPlayerAnim::PlayReloadAnim(FName sectionName)
 {
 	APlayerCharacter* owner = Cast<APlayerCharacter>(TryGetPawnOwner());

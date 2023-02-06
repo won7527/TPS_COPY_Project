@@ -35,7 +35,16 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = PlayerAnim)
 		class UAnimMontage* reloadAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = PlayerAnim)
+		class UAnimMontage* swapAnimMontage;
+
+	UFUNCTION(BlueprintCallable)
 	void PlayAttackAnim();
+
+	UFUNCTION(BlueprintCallable)
+	void PlaySwapAnim();
+
 	void PlayReloadAnim(FName sectionName);
 
 	UFUNCTION(BlueprintCallable)

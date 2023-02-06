@@ -17,6 +17,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Enemy.h"
 #include "MyPlayerController.h"
+#include "Animation/AnimInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -51,9 +52,11 @@ APlayerCharacter::APlayerCharacter()
 
 	// Sniper ������Ʈ ���
 	sniperComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("sniperComp"));
+	sniperBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("sniperBack"));
 
 	// �θ� ������Ʈ�� Mesh ������Ʈ�� ����
 	sniperComp->SetupAttachment(GetMesh(), TEXT("sniperSocket"));
+	sniperBack->SetupAttachment(GetMesh(), TEXT("sniperSocket"));
 
 	// Sniper Static Mesh Data Load
 	ConstructorHelpers::FObjectFinder<UStaticMesh> sniperMesh(TEXT("/Script/Engine.StaticMesh'/Game/SniperGun/sniper1.sniper1'"));
@@ -81,9 +84,11 @@ APlayerCharacter::APlayerCharacter()
 	
 	//Rifle ������Ʈ ���
 	rifleComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rifleComp"));
+	rifleBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rifleBack"));
 
 	//�θ� ������Ʈ�� Mesh ������Ʈ�� ����
 	rifleComp->SetupAttachment(GetMesh(), TEXT("rifleSocket"));
+	rifleBack->SetupAttachment(GetMesh(), TEXT("rifleSocket"));
 
 	// Rifle Static Mesh Data Load
 	ConstructorHelpers::FObjectFinder<UStaticMesh> rifleMesh(TEXT("/Script/Engine.StaticMesh'/Game/M4A1/M4A1.M4A1'"));
@@ -119,11 +124,12 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	sniperAmmo = 10;
+	sniperAmmo = maxSniperAmmo;
 
 	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
 	crosshairUI = CreateWidget<UUserWidget>(GetWorld(), crosshairFactory);
+	hitUI = CreateWidget<UUserWidget>(GetWorld(), hitAimFactory);
 	crosshairUI->AddToViewport();
 
 	sniperUI = CreateWidget<UUserWidget>(GetWorld(), sniperFactory);
@@ -131,7 +137,7 @@ void APlayerCharacter::BeginPlay()
 	ChangeToSniper();
 	//OnActionZoomRelease();
 
-	PlayerController = Cast<AMyPlayerController>(GetController());
+		PlayerController = Cast<AMyPlayerController>(GetController());
 
 
 	
@@ -230,14 +236,27 @@ void APlayerCharacter::OnAxisTurnRight(float value) {
 }
 
 void APlayerCharacter::OnActionZoomIn() {
-	//UE_LOG(LogTemp, Warning, TEXT("ZoomIn"))
-		cameraComp->FieldOfView -= 3;
+	if (bUsingSniper)
+	{
+		if (isZooming)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)			
+				cameraComp->FieldOfView -= 3;
+		}
+	}
 		
 }
 
 void APlayerCharacter::OnActionZoomOut() {
-	//UE_LOG(LogTemp, Warning, TEXT("ZoomOut"))
-		cameraComp->FieldOfView += 3;
+	if (bUsingSniper)
+	{
+		if (isZooming)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)
+			
+				cameraComp->FieldOfView += 3;			
+		}
+	}
 }
 
 void APlayerCharacter::OnActionJump() {
@@ -346,17 +365,37 @@ void APlayerCharacter::OnActionCrouch() {
  }
 
  void APlayerCharacter::ChangeToSniper() {
+
+	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+	 
+	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
+	 if (isMontagePlaying)
+	 {
+		 return;
+	 }
+	 anim->PlaySwapAnim();
 	 bUsingSniper = true;
 	 sniperComp->SetVisibility(true);
 	 rifleComp->SetVisibility(false);
+	 //sniperBack->SetVisibility(false);
+	 //rifleBack->SetVisibility(true);
 
 	 //UE_LOG(LogTemp, Warning, TEXT("Sniper"))
  }
  
  void APlayerCharacter::ChangeToRifle() {
+	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
+	 if (isMontagePlaying)
+	 {
+		 return;
+	 }
+	 anim->PlaySwapAnim();
 	 bUsingSniper = false;
 	 sniperComp->SetVisibility(false);
 	 rifleComp->SetVisibility(true);
+	 //sniperBack->SetVisibility(true);
+	 //rifleBack->SetVisibility(false);
 
 	 //UE_LOG(LogTemp, Warning, TEXT("Rifle"))
 
@@ -390,9 +429,21 @@ void APlayerCharacter::OnActionReload()
 {
 	if(bUsingSniper == true)
 	{
-		auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
-		anim->PlayReloadAnim(TEXT("SniperReload"));
+		if(sniperAmmo==maxSniperAmmo)
+		{
+			return;
+		}
 		UE_LOG(LogTemp, Warning, TEXT("%d"), sniperAmmo)
+		auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+		bool  isMontagePlaying = anim->Montage_IsPlaying(anim->attackAnimMontage);
+		if(isMontagePlaying)
+		{
+			return;
+		}
+
+		anim->PlayReloadAnim(TEXT("SniperReload"));
+		UGameplayStatics::PlaySound2D(GetWorld(), reloadSound);
+
 	}
 	else
 	{
@@ -413,7 +464,7 @@ void APlayerCharacter::OnFire() {
 	 end = start + cameraComp->GetForwardVector() * 100000;
 	 FCollisionQueryParams params;
 	 params.AddIgnoredActor(this);
-	UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+	
 	//auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass());
 
 	//auto target = Cast<AEnemy>(actor);
@@ -422,25 +473,27 @@ void APlayerCharacter::OnFire() {
 	
 	 if (bUsingSniper)
 	 {
-		//���� �� �� �Ѿ��� �����ִ��� �����ϰ� �ʹ�.
+		//
 		if(sniperAmmo>0)
 		{
+			UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
 			// ���� �����ִٸ� 1�� �����ϰ� �ʹ�.
 			sniperAmmo--;
 		}
 		else
 		{
 			 //�׷��� ������ ���� ���� �ʰڴ�.
+			UGameplayStatics::PlaySound2D(GetWorld(), emptySound);
 			return;
 		}
 		 auto controller = GetWorld()->GetFirstPlayerController();
 		 controller->PlayerCameraManager->StartCameraShake(cameraShake);
-		  if (isZooming == true)
-		 {
-			 bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECollisionChannel::ECC_Visibility, params);
+		 bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECollisionChannel::ECC_Visibility, params);
 			 AEnemy* hittedActor = Cast<AEnemy>(hitInfo.GetActor());
 			 sniperImpactPoint = hitInfo.ImpactPoint;
 			 sniperTraceEnd = hitInfo.TraceEnd;
+			//sniperImpactNormal = hitInfo.ImpactNormal
+		  	FTransform trans(hitInfo.ImpactPoint);
 			 if (bHit)
 			 {
 
@@ -448,12 +501,27 @@ void APlayerCharacter::OnFire() {
 				 AEnemy* HittedActor = Cast<AEnemy>(hitInfo.GetActor());
 				 if(HittedActor)
 				 {
-					 HittedActor->RifleHit();
+					 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bloodImpactFactory, trans);
+					 HittedActor->SniperHit();
+					 SniperHitTrail();
+					 hitUI->AddToViewport();
 				 }
-				 FTransform trans(hitInfo.ImpactPoint);
+				 else
+				 {
+					 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
+					 
+				 }
+			 //int32 randomBulletYaw = FMath::RandRange(1, 20);
+			 //int32 randomBulletPitch = FMath::RandRange(1, 20);
+			 //FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
+
+			 //GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation() + randomBullet);
+
+			 
+		 
 				 /*auto decalLoc = hitInfo.Location;
 
-				 SniperHitTrail();
+				
 				 //auto hitComp = hitInfo.GetComponent();
 				 //auto hitEnemy = hitInfo.GetActor();
 			 	;
@@ -462,13 +530,13 @@ void APlayerCharacter::OnFire() {
 				 if(hittedActor)
 				//if(hitInfo.GetActor()->GetClass()->GetName() == "BP_Enemy_C")
 				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bloodImpactFactory, trans);
+					
 				
 					hittedActor->SniperHit();
 				}
 				else
 				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
+					
 				}
 
 				// bool isActor = Cast<AEnemy>(Get)
@@ -480,8 +548,7 @@ void APlayerCharacter::OnFire() {
 				 auto decalRot = UKismetMathLibrary::MakeTransform(hitInfo.Location, hitRot);
 				
 				 UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decalFactory, FVector(1, 1, 1), decalLoc, hitRot);*/
-				// if(hitInfo==)
-			 	
+				// if(hitInfo==)			 	
 				 //if (hitComp != nullptr && hitComp->IsSimulatingPhysics())
 				 //{
 					 //FVector force = -hitInfo.ImpactNormal * hitComp->GetMass();
@@ -497,29 +564,21 @@ void APlayerCharacter::OnFire() {
 					 
 				 //}
 			 }
-		 }
-		 else {
-			  SniperNotHitTrail();
-			 //int32 randomBulletYaw = FMath::RandRange(1, 20);
-			 //int32 randomBulletPitch = FMath::RandRange(1, 20);
-			 //FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
-
-			 //GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation() + randomBullet);
-
-			 
+			 else
+			 {
+				 SniperNotHitTrail();
+			 }
 		 }
 	 }
-	 else {
-
-		 //int32 randomBulletYaw = FMath::RandRange(1, 10);
+	 //int32 randomBulletYaw = FMath::RandRange(1, 10);
 		 //int32 randomBulletPitch = FMath::RandRange(1, 10);
 		 //FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
 
 		 //GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, rifleFireLoc, cameraComp->GetComponentRotation() + randomBullet);
-	 }
+	 
 
 		
- }
+ 
 
  void APlayerCharacter::OneShot() {
 	 if (count == 1) {
@@ -535,11 +594,14 @@ void APlayerCharacter::OnFire() {
  void APlayerCharacter::ThrowBack(float deltaTime) {
 	 if (count == 0) {
 		 curTime += deltaTime;
-		 if (curTime >= 2.0f)
+		 if (curTime >= 1.5f)
 		 {
-			 count = 1;
-			 //UE_LOG(LogTemp, Warning, TEXT("Reload"))
+			 UGameplayStatics::PlaySound2D(GetWorld(), reloadBulletSound);
+			 
+				 count = 1;
+				 //UE_LOG(LogTemp, Warning, TEXT("Reload"))
 				 curTime = 0;
+			 
 		 }
 	 }
 

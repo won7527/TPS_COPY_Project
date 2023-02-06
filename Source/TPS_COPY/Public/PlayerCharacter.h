@@ -49,9 +49,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SniperMesh)
 	class UStaticMeshComponent* sniperComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SniperMesh)
+	class UStaticMeshComponent* sniperBack;
+
 	// 라이플 스켈레탈메시 추가
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = RifleMesh)
 	class UStaticMeshComponent* rifleComp;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = RifleMesh)
+	class UStaticMeshComponent* rifleBack;
 
 	//UPROPERTY(EditAnywhere, Category = SniperMesh)
 	//class USceneCaptureComponent2D* scopeCaptureComponent;
@@ -100,7 +105,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
 		class USoundBase* zoomOutSound;;
 
-	
+	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
+		class USoundBase* emptySound;
+
+	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
+		class USoundBase* reloadSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
+		class USoundBase* reloadBulletSound;
+
+
 
 	void OnAxisHorizontal(float value);
 	void OnAxisVertical(float value);
@@ -141,8 +155,14 @@ public:
 	UPROPERTY(EditAnywhere)		
 	TSubclassOf<class UUserWidget> crosshairFactory;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> hitAimFactory;
+
 	UPROPERTY()
 	class UUserWidget* crosshairUI;
+
+	UPROPERTY(BlueprintReadOnly)
+		class UUserWidget* hitUI;
 
 
 	float sniperFireInterval = 3.1f;
@@ -184,7 +204,7 @@ public:
 	//int rifleAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
-	int maxSniperAmmo = 5;
+	int maxSniperAmmo = 8;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
 	int sniperAmmo;
 	UFUNCTION(BlueprintImplementableEvent)

@@ -112,11 +112,11 @@ void AEnemy::Tick(float DeltaTime)
 	{
 		FRotator HeadToTarget = (target->GetActorLocation() - GetActorLocation()).Rotation();
 		SetActorRotation(HeadToTarget);
-		UE_LOG(LogTemp, Warning, TEXT("a"));
+		
 	}
 	else if (!InRange)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("b"));
+		
 	}
 	
 

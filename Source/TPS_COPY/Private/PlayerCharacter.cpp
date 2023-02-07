@@ -171,6 +171,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 		PlayerController->UIWeapon->SniperSet();
 	}
 
+	if (!(PlayerController->MainWid->IsGlitch))
+	{
+		PlayerController->MainWid->MainScreen();
+	}
+
+	if (GetWorld()->GetName() == FString("T_Lev"))
+	{
+		PlayerController->MainWid->RemoveFromParent();
+		UE_LOG(LogTemp, Warning, TEXT("Removed"));
+	}
 }
 
 // Called to bind functionality to input

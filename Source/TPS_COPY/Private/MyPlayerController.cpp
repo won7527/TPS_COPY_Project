@@ -11,7 +11,12 @@ AMyPlayerController::AMyPlayerController()
 	{
 		weaponUI = weapon.Class;
 	}
-	
+	ConstructorHelpers::FClassFinder<UMainWidget> main(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/TW_BP/BP_Main.BP_Main_C'"));
+	if (main.Succeeded())
+	{
+		mainUI = main.Class;
+	}
+
 }
 
 void AMyPlayerController::BeginPlay()
@@ -19,6 +24,12 @@ void AMyPlayerController::BeginPlay()
 	UIWeapon = CreateWidget<UWeaponUI>(this, weaponUI);
 	UIWeapon->AddToViewport();
 
+	MainWid = CreateWidget<UMainWidget>(this, mainUI);
+	if (MainWid->IsMain)
+	{
+		MainWid->AddToViewport();
+		
+	}
 	
 }
 

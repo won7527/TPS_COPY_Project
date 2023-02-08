@@ -27,6 +27,7 @@ public:
 	}
 
 	void OnMySniperReload();
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -207,6 +208,10 @@ public:
 	int maxSniperAmmo = 8;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
 	int sniperAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
+		int maxRifleAmmo = 30;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
+		int rifleAmmo;
 	UFUNCTION(BlueprintImplementableEvent)
 	void SniperHitTrail();
 	UFUNCTION(BlueprintImplementableEvent)

@@ -116,7 +116,13 @@ APlayerCharacter::APlayerCharacter()
 
 void APlayerCharacter::OnMySniperReload()
 {
-	sniperAmmo = maxSniperAmmo;
+	if (bUsingSniper) {
+		sniperAmmo = maxSniperAmmo;
+	}
+	else
+	{
+		rifleAmmo = maxRifleAmmo;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -125,6 +131,8 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	sniperAmmo = maxSniperAmmo;
+	rifleAmmo = maxRifleAmmo;
+	
 
 	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
@@ -447,7 +455,20 @@ void APlayerCharacter::OnActionReload()
 	}
 	else
 	{
-		return;
+		if (rifleAmmo == maxRifleAmmo)
+		{
+			return;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("%d"), rifleAmmo)
+			auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+		bool  isMontagePlaying = anim->Montage_IsPlaying(anim->attackAnimMontage);
+		if (isMontagePlaying)
+		{
+			return;
+		}
+
+		anim->PlayReloadAnim(TEXT("SniperReload"));
+		UGameplayStatics::PlaySound2D(GetWorld(), reloadSound);
 	}
 
 }
@@ -566,9 +587,14 @@ void APlayerCharacter::OnFire() {
 			 }
 			 else
 			 {
+		
 				 SniperNotHitTrail();
 			 }
 		 }
+	 else
+	 {
+	 return;
+	 }
 	 }
 	 //int32 randomBulletYaw = FMath::RandRange(1, 10);
 		 //int32 randomBulletPitch = FMath::RandRange(1, 10);

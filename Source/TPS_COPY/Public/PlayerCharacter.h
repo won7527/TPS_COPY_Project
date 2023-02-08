@@ -134,8 +134,10 @@ public:
 	void OnActionLookAroundPressed();
 	void OnActionLookAroundReleased();
 	void OnActionReload();
-
 	void OnFire();
+
+	void OnActionInteraction();
+	void OnActionInteractionEnd();
 	
 	FVector direction;
 
@@ -217,5 +219,10 @@ public:
 	FVector_NetQuantize	sniperTraceEnd;
 	UPROPERTY(BlueprintReadOnly)
 	FVector end;
+
+	bool IsRemove = false;
+
+	class ADoor* PrisonDoor;
+	bool IsCount;
 
 };

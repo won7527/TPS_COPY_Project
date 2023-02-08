@@ -19,6 +19,8 @@
 #include "MyPlayerController.h"
 #include "Animation/AnimInstance.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Door.h"
+#include "CountProgressUI.h"
 
 
 // Sets default values
@@ -139,7 +141,9 @@ void APlayerCharacter::BeginPlay()
 
 		PlayerController = Cast<AMyPlayerController>(GetController());
 
+	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), ADoor::StaticClass());
 
+	PrisonDoor = Cast<ADoor>(actor);
 	
 
 
@@ -182,10 +186,28 @@ void APlayerCharacter::Tick(float DeltaTime)
 		PlayerController->MainWid->MainScreen();
 	}
 
-	if (GetWorld()->GetName() == FString("T_Lev"))
+	if (GetWorld()->GetName() == FString("MainLevel"))
+	{
+		SetActorHiddenInGame(true);
+		PlayerController->bShowMouseCursor = true;
+	}
+
+
+	if (GetWorld()->GetName() == FString("T_Lev") && !IsRemove)
 	{
 		PlayerController->MainWid->RemoveFromParent();
 		UE_LOG(LogTemp, Warning, TEXT("Removed"));
+		IsRemove = true;
+
+	}
+	if (IsCount)
+	{
+
+		UE_LOG(LogTemp, Warning, TEXT("Add Count"));
+		PrisonDoor->count += 1;
+		PrisonDoor->CountProgress->UpdateCount(PrisonDoor->count, PrisonDoor->max);
+		
+		
 	}
 }
 
@@ -224,6 +246,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Released, this, &APlayerCharacter::OnActionDashReleased);
 	PlayerInputComponent->BindAction(TEXT("LookAround"), IE_Pressed, this, &APlayerCharacter::OnActionLookAroundPressed);
 	PlayerInputComponent->BindAction(TEXT("LookAround"), IE_Released, this, &APlayerCharacter::OnActionLookAroundReleased);
+	PlayerInputComponent->BindAction(TEXT("Interaction"), IE_Pressed, this, &APlayerCharacter::OnActionInteraction);
+	PlayerInputComponent->BindAction(TEXT("Interaction"), IE_Released, this, &APlayerCharacter::OnActionInteractionEnd);
 
 
 }
@@ -618,3 +642,17 @@ void APlayerCharacter::OnFire() {
  }
 
  
+ void APlayerCharacter::OnActionInteraction()
+ {
+	 if (PrisonDoor->IsIn)
+	 {
+		 IsCount = true;
+		 
+	 }
+ }
+
+ void APlayerCharacter::OnActionInteractionEnd()
+ {
+	 PrisonDoor->count = 0;
+	 IsCount = false;
+ }

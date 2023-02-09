@@ -381,8 +381,6 @@ void APlayerCharacter::OnActionCrouch() {
  void APlayerCharacter::ChangeToSniper() {
 
 	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
-	 sniperAmmoUI->AddToViewport();
-	 rifleAmmoUI->RemoveFromParent();
 	 
 	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
 	 if (isMontagePlaying)
@@ -393,6 +391,8 @@ void APlayerCharacter::OnActionCrouch() {
 	 bUsingSniper = true;
 	 sniperComp->SetVisibility(true);
 	 rifleComp->SetVisibility(false);
+	 sniperAmmoUI->AddToViewport();
+	 rifleAmmoUI->RemoveFromParent();
 	 //sniperBack->SetVisibility(false);
 	 //rifleBack->SetVisibility(true);
 
@@ -401,8 +401,6 @@ void APlayerCharacter::OnActionCrouch() {
  
  void APlayerCharacter::ChangeToRifle() {
 	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
-	 sniperAmmoUI->RemoveFromParent();
-	 rifleAmmoUI->AddToViewport();
 	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
 	 if (isMontagePlaying)
 	 {
@@ -412,6 +410,8 @@ void APlayerCharacter::OnActionCrouch() {
 	 bUsingSniper = false;
 	 sniperComp->SetVisibility(false);
 	 rifleComp->SetVisibility(true);
+	 sniperAmmoUI->RemoveFromParent();
+	 rifleAmmoUI->AddToViewport();
 	 //sniperBack->SetVisibility(true);
 	 //rifleBack->SetVisibility(false);
 
@@ -447,7 +447,7 @@ void APlayerCharacter::OnActionReload()
 {
 	if(bUsingSniper == true)
 	{
-		if(sniperAmmo==maxSniperAmmo)
+		if(sniperAmmo==maxSniperAmmo || allSniperAmmo<=0)
 		{
 			return;
 		}
@@ -465,7 +465,7 @@ void APlayerCharacter::OnActionReload()
 	}
 	else
 	{
-		if (rifleAmmo == maxRifleAmmo)
+		if (rifleAmmo == maxRifleAmmo || allRifleAmmo <= 0)
 		{
 			return;
 		}

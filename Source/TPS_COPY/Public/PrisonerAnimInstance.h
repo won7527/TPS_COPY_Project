@@ -37,6 +37,7 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_StandUpEnd();
-	
+	UFUNCTION()
+	void AnimNotify_SaluteEnd();
 
 };

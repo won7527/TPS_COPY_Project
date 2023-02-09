@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "WeaponUI.h"
 #include "MainWidget.h"
+#include "EndGameUI.h"
 #include "MyPlayerController.generated.h"
 
 /**
@@ -29,8 +30,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class UMainWidget> mainUI;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UEndGameUI> endUI;
+
 	class UWeaponUI* UIWeapon;
 	
 	class UMainWidget* MainWid;
+
+	class UEndGameUI* UIEndGame;
+
 
 };

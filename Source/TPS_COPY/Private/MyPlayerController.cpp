@@ -16,7 +16,11 @@ AMyPlayerController::AMyPlayerController()
 	{
 		mainUI = main.Class;
 	}
-
+	ConstructorHelpers::FClassFinder<UEndGameUI> end(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/TW_BP/UI_EndScreen.UI_EndScreen_C'"));
+	if (end.Succeeded())
+	{
+		endUI = end.Class;
+	}
 }
 
 void AMyPlayerController::BeginPlay()
@@ -30,6 +34,11 @@ void AMyPlayerController::BeginPlay()
 		MainWid->AddToViewport();
 		
 	}
-	
+	UIEndGame = CreateWidget<UEndGameUI>(this, endUI);
+	//if (UIEndGame->IsEndLevel)
+	//{
+	//	UIEndGame->AddToViewport();
+	//}
+
 }
 

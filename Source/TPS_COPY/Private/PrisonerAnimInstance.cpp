@@ -3,6 +3,7 @@
 #include "Prisoner.h"
 #include "PrisonerAnimInstance.h"
 #include <Kismet/GameplayStatics.h>
+#include "PlayerCharacter.h"
 
 UPrisonerAnimInstance::UPrisonerAnimInstance()
 {
@@ -51,4 +52,9 @@ void UPrisonerAnimInstance::AnimNotify_StandUpEnd()
 {
 	target->WalkAnimPlay();
 
+}
+
+void UPrisonerAnimInstance::AnimNotify_SaluteEnd()
+{
+	target->savior->IsFinal = true;
 }

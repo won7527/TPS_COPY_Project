@@ -225,4 +225,10 @@ public:
 	class ADoor* PrisonDoor;
 	bool IsCount;
 
+	bool IsFinal;
+	float KeepCount;
+
+	bool IsEndLev;
+	bool IsRealEnd;
+
 };

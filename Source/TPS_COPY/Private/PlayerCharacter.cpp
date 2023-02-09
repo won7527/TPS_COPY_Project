@@ -21,6 +21,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Door.h"
 #include "CountProgressUI.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "EndGameUI.h"
 
 
 // Sets default values
@@ -196,19 +198,44 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (GetWorld()->GetName() == FString("T_Lev") && !IsRemove)
 	{
 		PlayerController->MainWid->RemoveFromParent();
-		UE_LOG(LogTemp, Warning, TEXT("Removed"));
 		IsRemove = true;
 
 	}
 	if (IsCount)
 	{
-
-		UE_LOG(LogTemp, Warning, TEXT("Add Count"));
 		PrisonDoor->count += 1;
 		PrisonDoor->CountProgress->UpdateCount(PrisonDoor->count, PrisonDoor->max);
-		
-		
+		if (PrisonDoor->count >= PrisonDoor->max)
+		{
+			
+			DisableInput(PlayerController);
+			UWidgetLayoutLibrary::RemoveAllWidgets(this);
+
+		}
 	}
+	if (IsFinal)
+	{
+		KeepCount += DeltaTime;
+		cameraComp->SetFieldOfView(FMath::Lerp(90.0f, 170.0f, KeepCount * 0.1f));
+		if (KeepCount * 0.1f >= 1)
+		{
+			IsFinal = false;
+			IsEndLev = true;
+			PlayerController->UIEndGame->IsEndLevel = true;
+			UGameplayStatics::OpenLevel(GetWorld(), FName("EndLevel"));
+		}
+	}
+	if (GetWorld()->GetName() == FString("EndLevel") && !IsRealEnd)
+	{
+		PlayerController->MainWid->RemoveFromParent();
+		SetActorHiddenInGame(true);
+		PlayerController->UIEndGame->AddToViewport();
+		PlayerController->UIEndGame->EndScreen();
+		IsRealEnd = true;
+
+	}
+
+	
 }
 
 // Called to bind functionality to input

@@ -115,6 +115,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
 		class USoundBase* reloadBulletSound;
 
+	UPROPERTY(EditDefaultsOnly, Category = SoundSetting)
+		class USoundBase* sniperShellDropSound;
+
 
 
 	void OnAxisHorizontal(float value);
@@ -166,6 +169,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UUserWidget> sniperAmmoFactory;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class AActor> sniperBulletShellFactory;
 
 	UPROPERTY()
 	class UUserWidget* crosshairUI;

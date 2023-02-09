@@ -508,6 +508,7 @@ void APlayerCharacter::OnFire() {
 		if(sniperAmmo>0)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+			GetWorld()->SpawnActor<AActor>(sniperBulletShellFactory, sniperComp->GetSocketTransform(TEXT("sniperBulletShell")));
 			// ���� �����ִٸ� 1�� �����ϰ� �ʹ�.
 			sniperAmmo--;
 		}
@@ -630,9 +631,10 @@ void APlayerCharacter::OnFire() {
  void APlayerCharacter::ThrowBack(float deltaTime) {
 	 if (count == 0) {
 		 curTime += deltaTime;
-		 if (curTime >= 1.5f)
+		 if (curTime >= 1.2f)
 		 {
 			 UGameplayStatics::PlaySound2D(GetWorld(), reloadBulletSound);
+		 	UGameplayStatics::PlaySound2D(GetWorld(), sniperShellDropSound);
 			 
 				 count = 1;
 				 //UE_LOG(LogTemp, Warning, TEXT("Reload"))

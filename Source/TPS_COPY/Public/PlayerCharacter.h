@@ -145,9 +145,11 @@ public:
 	bool bUsingSniper = true;
 
 	// 스나이퍼로 변경
+	UFUNCTION(BlueprintCallable)
 	void ChangeToSniper();
 
 	// 라이플로 변경
+	UFUNCTION(BlueprintCallable)
 	void ChangeToRifle();
 
 	UPROPERTY(EditAnywhere, Category="Factory Setting")
@@ -159,11 +161,23 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UUserWidget> hitAimFactory;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> rifleAmmoFactory;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> sniperAmmoFactory;
+
 	UPROPERTY()
 	class UUserWidget* crosshairUI;
 
 	UPROPERTY(BlueprintReadOnly)
 		class UUserWidget* hitUI;
+
+	UPROPERTY(BlueprintReadOnly)
+		class UUserWidget* rifleAmmoUI;
+
+	UPROPERTY(BlueprintReadOnly)
+		class UUserWidget* sniperAmmoUI;
 
 
 	float sniperFireInterval = 3.1f;
@@ -203,11 +217,14 @@ public:
 	//int maxRifleAmmo = 20;
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
 	//int rifleAmmo;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
+		int allSniperAmmo;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
 	int maxSniperAmmo = 8;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
 	int sniperAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
+		int allRifleAmmo;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
 		int maxRifleAmmo = 30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)

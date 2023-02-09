@@ -117,10 +117,12 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::OnMySniperReload()
 {
 	if (bUsingSniper) {
+		allSniperAmmo -= (maxSniperAmmo - sniperAmmo);
 		sniperAmmo = maxSniperAmmo;
 	}
 	else
 	{
+		allRifleAmmo -= (maxRifleAmmo - rifleAmmo);
 		rifleAmmo = maxRifleAmmo;
 	}
 }
@@ -132,15 +134,19 @@ void APlayerCharacter::BeginPlay()
 
 	sniperAmmo = maxSniperAmmo;
 	rifleAmmo = maxRifleAmmo;
+	allSniperAmmo = 24;
+	allRifleAmmo = 120;
 	
 
 	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
 	crosshairUI = CreateWidget<UUserWidget>(GetWorld(), crosshairFactory);
 	hitUI = CreateWidget<UUserWidget>(GetWorld(), hitAimFactory);
+	rifleAmmoUI = CreateWidget<UUserWidget>(GetWorld(), rifleAmmoFactory);
+	sniperAmmoUI = CreateWidget<UUserWidget>(GetWorld(), sniperAmmoFactory);
 	crosshairUI->AddToViewport();
-
 	sniperUI = CreateWidget<UUserWidget>(GetWorld(), sniperFactory);
+	sniperAmmoUI->AddToViewport();
 	
 	ChangeToSniper();
 	//OnActionZoomRelease();
@@ -375,6 +381,8 @@ void APlayerCharacter::OnActionCrouch() {
  void APlayerCharacter::ChangeToSniper() {
 
 	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+	 sniperAmmoUI->AddToViewport();
+	 rifleAmmoUI->RemoveFromParent();
 	 
 	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
 	 if (isMontagePlaying)
@@ -393,6 +401,8 @@ void APlayerCharacter::OnActionCrouch() {
  
  void APlayerCharacter::ChangeToRifle() {
 	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+	 sniperAmmoUI->RemoveFromParent();
+	 rifleAmmoUI->AddToViewport();
 	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
 	 if (isMontagePlaying)
 	 {

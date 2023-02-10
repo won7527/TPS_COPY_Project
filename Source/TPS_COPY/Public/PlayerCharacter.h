@@ -124,7 +124,9 @@ public:
 	void OnAxisVertical(float value);
 	void OnAxisLookUp(float value);
 	void OnAxisTurnRight(float value);
+	UFUNCTION(BlueprintCallable)
 	void OnActionZoomIn();
+	UFUNCTION(BlueprintCallable)
 	void OnActionZoomOut();
 	void OnActionJump();
 	void OnActionZoom();
@@ -138,6 +140,8 @@ public:
 	void OnActionLookAroundPressed();
 	void OnActionLookAroundReleased();
 	void OnActionReload();
+	UFUNCTION(BlueprintCallable)
+	void OnActionLaser();
 	void OnFire();
 
 	void OnActionInteraction();

@@ -183,7 +183,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 
 	ThrowBack(DeltaTime);
-	if (isZooming)
+
+	/*if (isZooming)
 	{
 		PlayerController->UIWeapon->ZoomSet();
 	}
@@ -199,20 +200,19 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (!(PlayerController->MainWid->IsGlitch))
 	{
-		PlayerController->MainWid->MainScreen();
+		//PlayerController->MainWid->MainScreen();
 	}
 
 	if (GetWorld()->GetName() == FString("MainLevel"))
 	{
-		SetActorHiddenInGame(true);
-		PlayerController->bShowMouseCursor = true;
+		//SetActorHiddenInGame(true);
+		//PlayerController->bShowMouseCursor = true;
 	}
-
 
 	if (GetWorld()->GetName() == FString("T_Lev") && !IsRemove)
 	{
-		PlayerController->MainWid->RemoveFromParent();
-		IsRemove = true;
+		//PlayerController->MainWid->RemoveFromParent();
+		//IsRemove = true;
 
 	}
 	if (IsCount)
@@ -247,7 +247,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		PlayerController->UIEndGame->EndScreen();
 		IsRealEnd = true;
 
-	}
+	}*/
 
 	
 }
@@ -285,6 +285,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &APlayerCharacter::OnActionReload);
 	// DashReleased �̺�Ʈ �Լ� ���ε�
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Released, this, &APlayerCharacter::OnActionDashReleased);
+	PlayerInputComponent->BindAction(TEXT("LaserSwitch"), IE_Released, this, &APlayerCharacter::OnActionLaser);
 	PlayerInputComponent->BindAction(TEXT("LookAround"), IE_Pressed, this, &APlayerCharacter::OnActionLookAroundPressed);
 	PlayerInputComponent->BindAction(TEXT("LookAround"), IE_Released, this, &APlayerCharacter::OnActionLookAroundReleased);
 	PlayerInputComponent->BindAction(TEXT("Interaction"), IE_Pressed, this, &APlayerCharacter::OnActionInteraction);
@@ -361,7 +362,7 @@ void APlayerCharacter::OnActionZoom() {
 	else
 	{
 		
-		cameraComp->FieldOfView = 50.0f;
+		//cameraComp->FieldOfView = 50.0f;
 	}
 
 
@@ -389,7 +390,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 	{
 		GetMesh()->SetVisibility(true);
 		sniperUI->RemoveFromParent();
-		cameraComp->FieldOfView = 90.0f;
+		//cameraComp->FieldOfView = 90.0f;
 		isZooming = false;
 		//scopeCaptureComponent->SetVisibility(false);
 		//scopeCaptureComponent->FOVAngle = 90.0;
@@ -444,7 +445,7 @@ void APlayerCharacter::OnActionCrouch() {
 	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 	 
 	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
-	 if (isMontagePlaying)
+	 if (isMontagePlaying || bUsingSniper==true)
 	 {
 		 return;
 	 }
@@ -454,7 +455,7 @@ void APlayerCharacter::OnActionCrouch() {
 	 rifleComp->SetVisibility(false);
 	 sniperAmmoUI->AddToViewport();
 	 rifleAmmoUI->RemoveFromParent();
-	 //sniperBack->SetVisibility(false);
+	//sniperBack->SetVisibility(false);
 	 //rifleBack->SetVisibility(true);
 
 	 //UE_LOG(LogTemp, Warning, TEXT("Sniper"))
@@ -463,7 +464,7 @@ void APlayerCharacter::OnActionCrouch() {
  void APlayerCharacter::ChangeToRifle() {
 	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
-	 if (isMontagePlaying)
+	 if (isMontagePlaying || bUsingSniper==false)
 	 {
 		 return;
 	 }
@@ -542,6 +543,10 @@ void APlayerCharacter::OnActionReload()
 		UGameplayStatics::PlaySound2D(GetWorld(), reloadSound);
 	}
 
+}
+
+void APlayerCharacter::OnActionLaser()
+{
 }
 
 void APlayerCharacter::OnFire() {

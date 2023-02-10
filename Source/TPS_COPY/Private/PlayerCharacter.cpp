@@ -120,7 +120,15 @@ APlayerCharacter::APlayerCharacter()
 
 void APlayerCharacter::OnMySniperReload()
 {
-	sniperAmmo = maxSniperAmmo;
+	if (bUsingSniper) {
+		allSniperAmmo -= (maxSniperAmmo - sniperAmmo);
+		sniperAmmo = maxSniperAmmo;
+	}
+	else
+	{
+		allRifleAmmo -= (maxRifleAmmo - rifleAmmo);
+		rifleAmmo = maxRifleAmmo;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -129,14 +137,20 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	sniperAmmo = maxSniperAmmo;
+	rifleAmmo = maxRifleAmmo;
+	allSniperAmmo = 24;
+	allRifleAmmo = 120;
+	
 
 	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
 	crosshairUI = CreateWidget<UUserWidget>(GetWorld(), crosshairFactory);
 	hitUI = CreateWidget<UUserWidget>(GetWorld(), hitAimFactory);
+	rifleAmmoUI = CreateWidget<UUserWidget>(GetWorld(), rifleAmmoFactory);
+	sniperAmmoUI = CreateWidget<UUserWidget>(GetWorld(), sniperAmmoFactory);
 	crosshairUI->AddToViewport();
-
 	sniperUI = CreateWidget<UUserWidget>(GetWorld(), sniperFactory);
+	sniperAmmoUI->AddToViewport();
 	
 	ChangeToSniper();
 	//OnActionZoomRelease();
@@ -438,6 +452,8 @@ void APlayerCharacter::OnActionCrouch() {
 	 bUsingSniper = true;
 	 sniperComp->SetVisibility(true);
 	 rifleComp->SetVisibility(false);
+	 sniperAmmoUI->AddToViewport();
+	 rifleAmmoUI->RemoveFromParent();
 	 //sniperBack->SetVisibility(false);
 	 //rifleBack->SetVisibility(true);
 
@@ -455,6 +471,8 @@ void APlayerCharacter::OnActionCrouch() {
 	 bUsingSniper = false;
 	 sniperComp->SetVisibility(false);
 	 rifleComp->SetVisibility(true);
+	 sniperAmmoUI->RemoveFromParent();
+	 rifleAmmoUI->AddToViewport();
 	 //sniperBack->SetVisibility(true);
 	 //rifleBack->SetVisibility(false);
 
@@ -490,7 +508,7 @@ void APlayerCharacter::OnActionReload()
 {
 	if(bUsingSniper == true)
 	{
-		if(sniperAmmo==maxSniperAmmo)
+		if(sniperAmmo==maxSniperAmmo || allSniperAmmo<=0)
 		{
 			return;
 		}
@@ -508,7 +526,20 @@ void APlayerCharacter::OnActionReload()
 	}
 	else
 	{
-		return;
+		if (rifleAmmo == maxRifleAmmo || allRifleAmmo <= 0)
+		{
+			return;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("%d"), rifleAmmo)
+			auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+		bool  isMontagePlaying = anim->Montage_IsPlaying(anim->attackAnimMontage);
+		if (isMontagePlaying)
+		{
+			return;
+		}
+
+		anim->PlayReloadAnim(TEXT("SniperReload"));
+		UGameplayStatics::PlaySound2D(GetWorld(), reloadSound);
 	}
 
 }
@@ -538,6 +569,7 @@ void APlayerCharacter::OnFire() {
 		if(sniperAmmo>0)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+			GetWorld()->SpawnActor<AActor>(sniperBulletShellFactory, sniperComp->GetSocketTransform(TEXT("sniperBulletShell")));
 			// ���� �����ִٸ� 1�� �����ϰ� �ʹ�.
 			sniperAmmo--;
 		}
@@ -627,9 +659,14 @@ void APlayerCharacter::OnFire() {
 			 }
 			 else
 			 {
+		
 				 SniperNotHitTrail();
 			 }
 		 }
+	 else
+	 {
+	 return;
+	 }
 	 }
 	 //int32 randomBulletYaw = FMath::RandRange(1, 10);
 		 //int32 randomBulletPitch = FMath::RandRange(1, 10);
@@ -655,9 +692,10 @@ void APlayerCharacter::OnFire() {
  void APlayerCharacter::ThrowBack(float deltaTime) {
 	 if (count == 0) {
 		 curTime += deltaTime;
-		 if (curTime >= 1.5f)
+		 if (curTime >= 1.2f)
 		 {
 			 UGameplayStatics::PlaySound2D(GetWorld(), reloadBulletSound);
+		 	UGameplayStatics::PlaySound2D(GetWorld(), sniperShellDropSound);
 			 
 				 count = 1;
 				 //UE_LOG(LogTemp, Warning, TEXT("Reload"))

@@ -17,6 +17,8 @@ class TPS_COPY_API UEndGameUI : public UUserWidget
 
 public:
 
+	virtual void NativeOnInitialized();
+
 	UPROPERTY(meta = (BindWidget))
 	class UImage* EndImage;
 	UPROPERTY(meta = (BindWidget))
@@ -29,8 +31,9 @@ public:
 	class UImage* Bullet3;
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Bullet4;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USoundWave* AKSound;
 
-	
 	void EndImageSet();
 	void BloodImageSet();
 	void Bullet1Set();

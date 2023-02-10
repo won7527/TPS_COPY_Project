@@ -3,6 +3,20 @@
 #include "Components/Image.h"
 #include "EndGameUI.h"
 
+void UEndGameUI::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+	
+	//ConstructorHelpers::FObjectFinder<USoundWave> aksound(TEXT("/Script/Engine.SoundWave'/Game/TW_BP/Sounds/AK47_Sound_.AK47_Sound_'"));
+	//if (aksound.Succeeded())
+	//{
+	//	AKSound = aksound.Object;
+	//}
+	//
+	//
+
+}
+
 void UEndGameUI::EndImageSet()
 {
 	EndImage->SetVisibility(ESlateVisibility::Visible);
@@ -13,18 +27,22 @@ void UEndGameUI::BloodImageSet()
 }
 void UEndGameUI::Bullet1Set()
 {
+	PlaySound(AKSound);
 	Bullet1->SetVisibility(ESlateVisibility::Visible);
 }
 void UEndGameUI::Bullet2Set()
 {
+	PlaySound(AKSound);
 	Bullet2->SetVisibility(ESlateVisibility::Visible);
 }
 void UEndGameUI::Bullet3Set()
 {
+	PlaySound(AKSound);
 	Bullet3->SetVisibility(ESlateVisibility::Visible);
 }
 void UEndGameUI::Bullet4Set()
 {
+	PlaySound(AKSound);
 	Bullet4->SetVisibility(ESlateVisibility::Visible);
 }
 

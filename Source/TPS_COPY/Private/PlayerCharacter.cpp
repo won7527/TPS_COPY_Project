@@ -150,7 +150,12 @@ void APlayerCharacter::BeginPlay()
 	sniperAmmoUI = CreateWidget<UUserWidget>(GetWorld(), sniperAmmoFactory);
 	crosshairUI->AddToViewport();
 	sniperUI = CreateWidget<UUserWidget>(GetWorld(), sniperFactory);
-	sniperAmmoUI->AddToViewport();
+	if (!sniperAmmoUI->IsInViewport())
+	{
+		sniperAmmoUI->AddToViewport();
+	
+	}
+	
 	
 	ChangeToSniper();
 	//OnActionZoomRelease();
@@ -203,7 +208,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 
 	
-	if (!(PlayerController->MainWid->IsGlitch))
+	if (!(PlayerController->MainWid->IsGlitch) && GetWorld()->GetName() == FString("MainLevel"))
 	{
 		PlayerController->MainWid->MainScreen();
 	}
@@ -213,6 +218,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		SetActorHiddenInGame(true);
 		DisableInput(PlayerController);
 		PlayerController->bShowMouseCursor = true;
+	
 	}
 
 
@@ -360,8 +366,10 @@ void APlayerCharacter::OnActionZoom() {
 		//scopeCaptureComponent->SetVisibility(true);
 		//scopePlane->SetVisibility(true);
 		//scopeBack->SetVisibility(true);
+		
+		
 		sniperUI->AddToViewport();
-
+		
 		cameraComp->SetFieldOfView(20.0f);
 
 		crosshairUI->RemoveFromParent();
@@ -463,7 +471,11 @@ void APlayerCharacter::OnActionCrouch() {
 	 bUsingSniper = true;
 	 sniperComp->SetVisibility(true);
 	 rifleComp->SetVisibility(false);
-	 sniperAmmoUI->AddToViewport();
+	 if (!sniperAmmoUI->IsInViewport())
+	 {
+		sniperAmmoUI->AddToViewport();
+
+	 }
 	 rifleAmmoUI->RemoveFromParent();
 	 //sniperBack->SetVisibility(false);
 	 //rifleBack->SetVisibility(true);

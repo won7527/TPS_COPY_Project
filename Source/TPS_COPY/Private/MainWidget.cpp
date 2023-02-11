@@ -45,6 +45,7 @@ void UMainWidget::MainScreen()
 	FTimerHandle mainreset;
 	if (main1 && !main1start.IsValid())
 	{
+		
 		GetWorld()->GetTimerManager().SetTimer(main1start, this, &UMainWidget::Main1Set, 1.2f, false);
 		GetWorld()->GetTimerManager().SetTimer(main2start, this, &UMainWidget::Main2Set, 1.0f, false);
 		GetWorld()->GetTimerManager().SetTimer(mainreset, this, &UMainWidget::MainReset, 1.4f, false);

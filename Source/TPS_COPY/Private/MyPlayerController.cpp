@@ -29,7 +29,7 @@ void AMyPlayerController::BeginPlay()
 	UIWeapon->AddToViewport();
 
 	MainWid = CreateWidget<UMainWidget>(this, mainUI);
-	if (MainWid->IsMain)
+	if (GetWorld()->GetName() == FString("MainLevel"))
 	{
 		MainWid->AddToViewport();
 		
@@ -39,6 +39,11 @@ void AMyPlayerController::BeginPlay()
 	//{
 	//	UIEndGame->AddToViewport();
 	//}
-
+	//if (GetWorld()->GetName() == FString("MainLevel"))
+	//{
+	//	DisableInput(this);
+	//
+	//}
+	//
 }
 

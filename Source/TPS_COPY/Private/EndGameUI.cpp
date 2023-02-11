@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Components/Image.h"
 #include "EndGameUI.h"
+#include "Components/Image.h"
 
 void UEndGameUI::NativeOnInitialized()
 {
@@ -19,10 +19,12 @@ void UEndGameUI::NativeOnInitialized()
 
 void UEndGameUI::EndImageSet()
 {
+	PlaySound(ExplosionFirst);
 	EndImage->SetVisibility(ESlateVisibility::Visible);
 }
 void UEndGameUI::BloodImageSet()
 {
+	PlaySound(ExplosionSecond);
 	BloodImage->SetVisibility(ESlateVisibility::Visible);
 }
 void UEndGameUI::Bullet1Set()

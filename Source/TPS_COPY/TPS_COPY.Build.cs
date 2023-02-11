@@ -8,8 +8,8 @@ public class TPS_COPY : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "GameplayTasks", "AIModule", "Niagara" });
+		//"UMG",
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "GameplayTasks", "AIModule", "Niagara" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

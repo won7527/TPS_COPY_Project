@@ -10,6 +10,7 @@
 #include "EnemyHp.h"
 #include "EnemyDistWidget.h"
 #include "Components/WidgetComponent.h"
+#include "BrainComponent.h"
 
 
 
@@ -108,15 +109,21 @@ void AEnemy::Tick(float DeltaTime)
 		EnemyDist->SetVisibility(true);
 	}
 
-	if (InRange && target)
+	if (InRange && target && CurrentHp > 0)
 	{
 		FRotator HeadToTarget = (target->GetActorLocation() - GetActorLocation()).Rotation();
-		SetActorRotation(HeadToTarget);
+		FRotator RealRotation = FRotator(0, HeadToTarget.Yaw - 10, 0);
+		SetActorRotation(RealRotation);
+		if (!IsRestart)
+		{
+			AIController->GetBrainComponent()->RestartLogic();
+			IsRestart = true;
+		}
 		
 	}
 	else if (!InRange)
 	{
-		
+		IsRestart = false;
 	}
 	
 
@@ -132,7 +139,6 @@ void AEnemy::Tick(float DeltaTime)
 	{
 		
 		RightBeforeHp = 0;
-		UE_LOG(LogTemp, Warning, TEXT("a"));
 		IsBackAttack = true;
 		FTimerHandle DecreasedHpTime;
 		FTimerHandle DestroyTime;
@@ -142,6 +148,7 @@ void AEnemy::Tick(float DeltaTime)
 	}
 	else if (CurrentHp <= 0 && IsBack < 0 && !DuringDie)
 	{
+		AIController->GetBrainComponent()->StopLogic("");
 		AIController->StopMovement();
 		DuringDie = true;
 		int32 RandDead = FMath::RandRange(0, 1);
@@ -178,12 +185,12 @@ void AEnemy::Attack()
 	if ((target->GetActorLocation() - GetActorLocation()).Size() < FireRange)
 	{
 		EndTrace = target->GetActorLocation();
-		UE_LOG(LogTemp, Warning, TEXT("asd"));
+	
 	}
 	else
 	{
 		EndTrace = GetActorLocation() + GetActorForwardVector() * FireRange;
-		UE_LOG(LogTemp, Warning, TEXT("asda"));
+	
 	}
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, param);

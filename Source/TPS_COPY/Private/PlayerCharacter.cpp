@@ -186,6 +186,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (isZooming)
 	{
 		PlayerController->UIWeapon->ZoomSet();
+		
+	}
+	else if (IsZoomEnd && bUsingSniper)
+	{
+		PlayerController->UIWeapon->ZoomOut();
 	}
 
 	else if (!bUsingSniper)
@@ -197,6 +202,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		PlayerController->UIWeapon->SniperSet();
 	}
 
+	
 	if (!(PlayerController->MainWid->IsGlitch))
 	{
 		PlayerController->MainWid->MainScreen();
@@ -205,6 +211,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (GetWorld()->GetName() == FString("MainLevel"))
 	{
 		SetActorHiddenInGame(true);
+		DisableInput(PlayerController);
 		PlayerController->bShowMouseCursor = true;
 	}
 
@@ -230,8 +237,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (IsFinal)
 	{
 		KeepCount += DeltaTime;
-		cameraComp->SetFieldOfView(FMath::Lerp(90.0f, 170.0f, KeepCount * 0.1f));
-		if (KeepCount * 0.1f >= 1)
+		cameraComp->SetFieldOfView(FMath::Lerp(90.0f, 170.0f, KeepCount * 0.2f));
+		if (KeepCount * 0.2f >= 1)
 		{
 			IsFinal = false;
 			IsEndLev = true;
@@ -315,8 +322,9 @@ void APlayerCharacter::OnActionZoomIn() {
 	{
 		if (isZooming)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)			
+			//UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)			
 				cameraComp->FieldOfView -= 3;
+		
 		}
 	}
 		
@@ -327,9 +335,10 @@ void APlayerCharacter::OnActionZoomOut() {
 	{
 		if (isZooming)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)
+			//UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)
 			
-				cameraComp->FieldOfView += 3;			
+				cameraComp->FieldOfView += 3;	
+		
 		}
 	}
 }
@@ -356,7 +365,8 @@ void APlayerCharacter::OnActionZoom() {
 		cameraComp->SetFieldOfView(20.0f);
 
 		crosshairUI->RemoveFromParent();
-				
+		IsZoomEnd = false;
+	
 	}
 	else
 	{
@@ -384,6 +394,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 		//scopeCaptureComponent->FOVAngle = 90.0;
 		//scopePlane->SetVisibility(false);
 		//scopeBack->SetVisibility(false);
+		IsZoomEnd = true;
 	}
 	else
 	{
@@ -712,7 +723,7 @@ void APlayerCharacter::OnFire() {
 	 if (PrisonDoor->IsIn)
 	 {
 		 IsCount = true;
-		 
+		 PrisonDoor->SoundStart();
 	 }
  }
 
@@ -720,4 +731,5 @@ void APlayerCharacter::OnFire() {
  {
 	 PrisonDoor->count = 0;
 	 IsCount = false;
+	 
  }

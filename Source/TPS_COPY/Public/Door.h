@@ -30,6 +30,10 @@ public:
 	class UBoxComponent* BoxComp;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundBase* DoorOpenSound;
+	class UAudioComponent* DoorSound;
+	void SoundStart();
 
 	UFUNCTION()
 	void Overlapped(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

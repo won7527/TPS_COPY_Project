@@ -33,6 +33,10 @@ public:
 	class UImage* Bullet4;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USoundWave* AKSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USoundWave* ExplosionFirst;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USoundWave* ExplosionSecond;
 
 	void EndImageSet();
 	void BloodImageSet();

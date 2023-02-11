@@ -1,12 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Components/BoxComponent.h"
 #include "Door.h"
+#include "Components/BoxComponent.h"
 #include "PlayerCharacter.h"
 #include <Kismet/GameplayStatics.h>
 #include "Components/WidgetComponent.h"
 #include "CountProgressUI.h"
 #include "Prisoner.h"
+#include "Components/AudioComponent.h"
+
 
 // Sets default values
 ADoor::ADoor()
@@ -70,6 +72,11 @@ void ADoor::Tick(float DeltaTime)
 	if (!IsIn || !savior->IsCount)
 	{
 		AccumulatedAngle = 0;
+		if (DoorSound)
+		{
+			DoorSound->Stop();
+		}
+		
 	}
 	AccumulatedAngle += OpenAngle * count;
 	MeshComp->SetRelativeRotation(FRotator(0, AccumulatedAngle, 0));
@@ -81,9 +88,9 @@ void ADoor::Overlapped(class UPrimitiveComponent* OverlappedComp, class AActor* 
 	
 	if (OtherActor == savior)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("IN Player"));
+	
 		IsIn = true;
-		
+		CountWid->SetVisibility(true);
 	}
 
 }
@@ -95,6 +102,7 @@ void ADoor::EndOverlapped(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 		IsIn = false;
 		savior->IsCount = false;
 		count = 0;
+		CountWid->SetVisibility(false);
 	}
 
 }
@@ -102,4 +110,14 @@ void ADoor::Open()
 {
 	prisoner->StandUpAnimPlay();
 	Destroy();
+}
+
+void ADoor::SoundStart()
+{
+	DoorSound = UGameplayStatics::SpawnSound2D(this, DoorOpenSound);
+
+	if (DoorSound)
+	{
+		//DoorSound->Play();
+	}
 }

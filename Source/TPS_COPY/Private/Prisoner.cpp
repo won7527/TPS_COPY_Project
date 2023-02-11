@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PrisonerAnimInstance.h"
 #include "Prisoner.h"
+#include "PrisonerAnimInstance.h"
 #include "PlayerCharacter.h"
 #include <Kismet/GameplayStatics.h>
 
@@ -55,9 +55,9 @@ void APrisoner::Tick(float DeltaTime)
 	if (IsWalk)
 	{
 		KeepTime += DeltaTime;
-		SetActorLocation(FMath::Lerp(DefaultLocation, savior->GetActorLocation(), 0.2f * KeepTime));
+		SetActorLocation(FMath::Lerp(DefaultLocation, savior->GetActorLocation(), 0.4f * KeepTime));
 		SetActorRotation((savior->GetActorLocation() - GetActorLocation()).Rotation());
-		if (0.2f * KeepTime > 0.7f)
+		if (0.4f * KeepTime > 0.7f)
 		{
 			IsWalk = false;
 			PrisonerAnimInst->SaluteAnim();

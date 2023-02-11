@@ -251,6 +251,7 @@ public:
 	bool IsRemove = false;
 
 	class ADoor* PrisonDoor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsCount;
 
 	bool IsFinal;
@@ -258,5 +259,5 @@ public:
 
 	bool IsEndLev;
 	bool IsRealEnd;
-
+	bool IsZoomEnd;
 };

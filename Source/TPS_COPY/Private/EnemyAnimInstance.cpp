@@ -17,7 +17,7 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	HittedLocationY = FVector::DotProduct(owner->GetActorRightVector(), (owner->HittedLocation - owner->GetActorLocation()).GetSafeNormal());
 	HittedLocationZ = FVector::DotProduct(owner->GetActorUpVector(), (owner->HittedLocation - owner->GetActorLocation()).GetSafeNormal());
-	
+
 	
 	IsAttackAnim = owner->IsAttack;
 	IsBackAnim = owner->IsBackAttack;

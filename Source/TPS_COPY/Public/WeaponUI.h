@@ -23,5 +23,6 @@ public:
 
 	void SniperSet();
 	void ZoomSet();
+	void ZoomOut();
 	void RifleSet();
 };

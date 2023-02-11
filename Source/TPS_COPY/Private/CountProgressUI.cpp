@@ -17,5 +17,5 @@ void UCountProgressUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 void UCountProgressUI::UpdateCount(int32 count, int32 max)
 {
 	CountProgress->SetPercent(count / max);
-	UE_LOG(LogTemp, Warning, TEXT("IS PROGRESS"));
+
 }

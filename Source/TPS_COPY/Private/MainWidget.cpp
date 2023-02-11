@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "MainWidget.h"
 #include "Components/Image.h"
 #include "Components/Button.h"
-#include "MainWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
@@ -21,8 +21,11 @@ void UMainWidget::NativeConstruct()
 
 void UMainWidget::Main1Set()
 {
-	main1->SetVisibility(ESlateVisibility::Visible);
-	main2->SetVisibility(ESlateVisibility::Hidden);
+	if (main1)
+	{ 
+		main1->SetVisibility(ESlateVisibility::Visible);
+		main2->SetVisibility(ESlateVisibility::Hidden);
+	}
 
 }
 
@@ -36,13 +39,16 @@ void UMainWidget::MainScreen()
 {
 	IsGlitch = true;
 	
-	Main1Set();
+	//Main1Set();
 	FTimerHandle main1start;
 	FTimerHandle main2start;
 	FTimerHandle mainreset;
-	GetWorld()->GetTimerManager().SetTimer(main2start, this, &UMainWidget::Main2Set, 1.0f, false);
-	GetWorld()->GetTimerManager().SetTimer(main1start, this, &UMainWidget::Main1Set, 1.2f, false);
-	GetWorld()->GetTimerManager().SetTimer(mainreset, this, &UMainWidget::MainReset, 1.4f, false);
+	if (main1 && !main1start.IsValid())
+	{
+		GetWorld()->GetTimerManager().SetTimer(main1start, this, &UMainWidget::Main1Set, 1.2f, false);
+		GetWorld()->GetTimerManager().SetTimer(main2start, this, &UMainWidget::Main2Set, 1.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(mainreset, this, &UMainWidget::MainReset, 1.4f, false);
+	}
 }
 
 void UMainWidget::MainReset()

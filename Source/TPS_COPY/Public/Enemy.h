@@ -44,7 +44,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector EndTrace;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FireRange = 2000;
+	float FireRange = 4000;
 
 	UFUNCTION(BlueprintCallable)
 	void Attack();
@@ -99,7 +99,7 @@ public:
 	UAnimSequence* DeadAnim2;
 	
 	bool DuringDie;
-
+	bool IsRestart;
 	
 	
 

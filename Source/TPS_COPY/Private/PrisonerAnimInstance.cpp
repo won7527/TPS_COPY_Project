@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Prisoner.h"
 #include "PrisonerAnimInstance.h"
+#include "Prisoner.h"
 #include <Kismet/GameplayStatics.h>
 #include "PlayerCharacter.h"
 

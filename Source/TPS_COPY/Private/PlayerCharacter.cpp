@@ -18,6 +18,7 @@
 #include "Enemy.h"
 #include "MyPlayerController.h"
 #include "Animation/AnimInstance.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Door.h"
 #include "CountProgressUI.h"
@@ -347,12 +348,17 @@ void APlayerCharacter::OnActionZoom() {
 		UGameplayStatics::PlaySound2D(GetWorld(), zoomInSound);
 		sniperComp->SetVisibility(false);
 		GetMesh()->SetVisibility(false);
+
+		FLinearColor col = UKismetMathLibrary::LinearColor_Black();
+
 		//UE_LOG(LogTemp, Warning, TEXT("Zooming"))
 			isZooming = true;
 		//scopeCaptureComponent->SetVisibility(true);
 		//scopePlane->SetVisibility(true);
 		//scopeBack->SetVisibility(true);
 		sniperUI->AddToViewport();
+		if(pcm!=nullptr)
+		pcm->StartCameraFade(0.5, 1, 0.5, col, true, false);
 
 		cameraComp->SetFieldOfView(20.0f);
 

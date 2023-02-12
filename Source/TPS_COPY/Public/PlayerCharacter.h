@@ -179,7 +179,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class AActor> sniperBulletShellFactory;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class UUserWidget* crosshairUI;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -262,5 +262,7 @@ public:
 
 	bool IsEndLev;
 	bool IsRealEnd;
+
+	APlayerCameraManager* pcm;
 
 };

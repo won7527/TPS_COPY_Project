@@ -61,7 +61,7 @@ void UMainWidget::OnClick()
 {
 	IsMain = false;
 	
-	UGameplayStatics::OpenLevel(GetWorld(), FName("T_Lev"));
+	UGameplayStatics::OpenLevel(GetWorld(), FName("FinalLevel"));
 	//main1->SetVisibility(ESlateVisibility::Hidden);
 	//main2->SetVisibility(ESlateVisibility::Hidden);
 	RemoveFromParent();

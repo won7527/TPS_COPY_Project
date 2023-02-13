@@ -212,7 +212,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	
 	if (!(PlayerController->MainWid->IsGlitch) && GetWorld()->GetName() == FString("MainLevel"))
 	{
-		//PlayerController->MainWid->MainScreen();
+		PlayerController->MainWid->MainScreen();
 	}
 
 	if (GetWorld()->GetName() == FString("MainLevel"))
@@ -226,10 +226,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	}
 
-	if (GetWorld()->GetName() == FString("T_Lev") && !IsRemove)
+	if (GetWorld()->GetName() == FString("FinalLevel") && !IsRemove)
 	{
-		//PlayerController->MainWid->RemoveFromParent();
-		//IsRemove = true;
+		PlayerController->MainWid->RemoveFromParent();
+		IsRemove = true;
 
 	}
 	if (IsCount)

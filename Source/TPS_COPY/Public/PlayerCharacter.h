@@ -46,14 +46,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCameraComponent* cameraComp;
 
-	// ½º³ªÀÌÆÛ ½ºÄÌ·¹Å»¸Þ½Ã Ãß°¡
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì·ï¿½Å»ï¿½Þ½ï¿½ ï¿½ß°ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SniperMesh)
 	class UStaticMeshComponent* sniperComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SniperMesh)
 	class UStaticMeshComponent* sniperBack;
 
-	// ¶óÀÌÇÃ ½ºÄÌ·¹Å»¸Þ½Ã Ãß°¡
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì·ï¿½Å»ï¿½Þ½ï¿½ ï¿½ß°ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = RifleMesh)
 	class UStaticMeshComponent* rifleComp;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = RifleMesh)
@@ -124,7 +124,9 @@ public:
 	void OnAxisVertical(float value);
 	void OnAxisLookUp(float value);
 	void OnAxisTurnRight(float value);
+	UFUNCTION(BlueprintCallable)
 	void OnActionZoomIn();
+	UFUNCTION(BlueprintCallable)
 	void OnActionZoomOut();
 	void OnActionJump();
 	void OnActionZoom();
@@ -138,6 +140,8 @@ public:
 	void OnActionLookAroundPressed();
 	void OnActionLookAroundReleased();
 	void OnActionReload();
+	UFUNCTION(BlueprintCallable)
+	void OnActionLaser();
 	void OnFire();
 
 	void OnActionInteraction();
@@ -145,15 +149,15 @@ public:
 	
 	FVector direction;
 
-	// ½º³ªÀÌÆÛ »ç¿ë ÁßÀÎ°¡
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Player Setting")
 	bool bUsingSniper = true;
 
-	// ½º³ªÀÌÆÛ·Î º¯°æ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û·ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UFUNCTION(BlueprintCallable)
 	void ChangeToSniper();
 
-	// ¶óÀÌÇÃ·Î º¯°æ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ã·ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UFUNCTION(BlueprintCallable)
 	void ChangeToRifle();
 
@@ -175,7 +179,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class AActor> sniperBulletShellFactory;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class UUserWidget* crosshairUI;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -260,4 +264,6 @@ public:
 	bool IsEndLev;
 	bool IsRealEnd;
 	bool IsZoomEnd;
+
+
 };

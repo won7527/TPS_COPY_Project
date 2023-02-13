@@ -190,7 +190,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	ThrowBack(DeltaTime);
 
-	/*if (isZooming)
+	if (isZooming)
 	{
 		PlayerController->UIWeapon->ZoomSet();
 		
@@ -264,7 +264,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		PlayerController->UIEndGame->EndScreen();
 		IsRealEnd = true;
 
-	}*/
+	}
 
 	
 }

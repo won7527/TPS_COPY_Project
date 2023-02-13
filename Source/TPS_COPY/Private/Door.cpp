@@ -78,8 +78,12 @@ void ADoor::Tick(float DeltaTime)
 		}
 		
 	}
-	AccumulatedAngle += OpenAngle * count;
+	if (count > 0)
+	{
+	AccumulatedAngle -= OpenAngle * count;
 	MeshComp->SetRelativeRotation(FRotator(0, AccumulatedAngle, 0));
+
+	}
 
 }
 

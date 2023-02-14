@@ -139,6 +139,7 @@ public:
 	void OnActionDashReleased();
 	void OnActionLookAroundPressed();
 	void OnActionLookAroundReleased();
+	UFUNCTION(BlueprintCallable)
 	void OnActionReload();
 	UFUNCTION(BlueprintCallable)
 	void OnActionLaser();
@@ -264,6 +265,6 @@ public:
 	bool IsEndLev;
 	bool IsRealEnd;
 	bool IsZoomEnd;
-
+	bool isRifleZooming;
 
 };

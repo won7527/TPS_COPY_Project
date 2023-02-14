@@ -159,6 +159,7 @@ void APlayerCharacter::BeginPlay()
 	
 	
 	ChangeToSniper();
+	rifleComp->SetVisibility(false);
 	//OnActionZoomRelease();
 
 		PlayerController = Cast<AMyPlayerController>(GetController());
@@ -210,7 +211,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 
 	
-	if (!(PlayerController->MainWid->IsGlitch) && GetWorld()->GetName() == FString("MainLevel"))
+	/*if (!(PlayerController->MainWid->IsGlitch) && GetWorld()->GetName() == FString("MainLevel"))
 	{
 		PlayerController->MainWid->MainScreen();
 	}
@@ -232,6 +233,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		IsRemove = true;
 
 	}
+	
 	if (IsCount)
 	{
 		PrisonDoor->count += 1;
@@ -265,7 +267,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		IsRealEnd = true;
 
 	}
-
+	*/
 	
 }
 
@@ -468,7 +470,7 @@ void APlayerCharacter::OnActionCrouch() {
 
  void APlayerCharacter::ChangeToSniper() {
 
-	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+	  auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 	 
 	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
 	 if (isMontagePlaying || bUsingSniper==true)
@@ -494,6 +496,7 @@ void APlayerCharacter::OnActionCrouch() {
  void APlayerCharacter::ChangeToRifle() {
 	 auto anim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 	 bool  isMontagePlaying = anim->Montage_IsPlaying(anim->swapAnimMontage);
+	 OnActionZoomRelease();
 	 if (isMontagePlaying || bUsingSniper==false)
 	 {
 		 return;

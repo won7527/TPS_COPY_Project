@@ -40,7 +40,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class USpringArmComponent* springArmComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -83,8 +83,15 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UUserWidget> sniperFactory;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> sniperDotFactory;
+
 	UPROPERTY()
 		class UUserWidget* sniperUI;
+	UPROPERTY()
+		class UUserWidget* sniperDotUI;
+
+
 
 
 
@@ -215,7 +222,7 @@ public:
 	UPROPERTY(EditAnywhere, Category=PlayerSetting)
 	float walkSpeed = 200;
 	UPROPERTY(EditAnywhere, Category = PlayerSetting)
-	float runSpeed = 600;
+	float runSpeed = 450;
 	UPROPERTY(EditAnywhere, Category = PlayerSetting)
 	FVector sniperLoc = FVector (40, 0, 30);
 	FVector rifleLoc = FVector(-42, 7, 1);

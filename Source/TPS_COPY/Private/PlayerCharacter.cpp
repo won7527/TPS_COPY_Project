@@ -151,6 +151,7 @@ void APlayerCharacter::BeginPlay()
 	sniperAmmoUI = CreateWidget<UUserWidget>(GetWorld(), sniperAmmoFactory);
 	crosshairUI->AddToViewport();
 	sniperUI = CreateWidget<UUserWidget>(GetWorld(), sniperFactory);
+	sniperDotUI = CreateWidget<UUserWidget>(GetWorld(), sniperDotFactory);
 	if (!sniperAmmoUI->IsInViewport())
 	{
 		sniperAmmoUI->AddToViewport();
@@ -379,7 +380,7 @@ void APlayerCharacter::OnActionZoom() {
 		
 		
 		sniperUI->AddToViewport();
-
+		sniperDotUI->AddToViewport();
 		cameraComp->SetFieldOfView(20.0f);
 
 		crosshairUI->RemoveFromParent();
@@ -404,6 +405,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 		sniperComp->SetVisibility(true);
 		GetMesh()->SetVisibility(true);
 		sniperUI->RemoveFromParent();
+		sniperDotUI->RemoveFromParent();
 		crosshairUI->AddToViewport();
 		cameraComp->SetFieldOfView(90.0f);
 		//UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
@@ -418,6 +420,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 	{
 		GetMesh()->SetVisibility(true);
 		sniperUI->RemoveFromParent();
+		sniperDotUI->RemoveFromParent();
 		//cameraComp->FieldOfView = 90.0f;
 		isZooming = false;
 		//scopeCaptureComponent->SetVisibility(false);

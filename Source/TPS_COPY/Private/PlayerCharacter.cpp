@@ -480,7 +480,14 @@ void APlayerCharacter::OnActionCrouch() {
 	 {
 		 return;
 	 }
-	 anim->PlaySwapAnim();
+	 if (isProne == true)
+	 {
+		 anim->PlayProneSwapAnim();
+	 }
+	 else {
+		 anim->PlaySwapAnim();
+	 }
+	 
 	 bUsingSniper = true;
 	 sniperComp->SetVisibility(true);
 	 rifleComp->SetVisibility(false);
@@ -504,7 +511,14 @@ void APlayerCharacter::OnActionCrouch() {
 	 {
 		 return;
 	 }
-	 anim->PlaySwapAnim();
+	 if (isProne == true)
+	 {
+		 anim->PlayProneSwapAnim();
+	 }
+	 else {
+		 anim->PlaySwapAnim();
+	 }
+	 
 	 bUsingSniper = false;
 	 sniperComp->SetVisibility(false);
 	 rifleComp->SetVisibility(true);
@@ -518,11 +532,19 @@ void APlayerCharacter::OnActionCrouch() {
  }
 
  void APlayerCharacter::OnActionDash() {
+	 
+	 if (isCrouching || isProne==true) {
+		 return;
+	 }
 
 	GetCharacterMovement()->MaxWalkSpeed  = runSpeed;
 
  }
  void APlayerCharacter::OnActionDashReleased() {
+
+	 if (isCrouching || isProne==true) {
+		 return;
+	 }
 
 	 GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 
@@ -556,8 +578,13 @@ void APlayerCharacter::OnActionReload()
 		{
 			return;
 		}
-
-		anim->PlayReloadAnim(TEXT("SniperReload"));
+		if (isProne == true)
+		{
+			anim->PlayProneReloadAnim();
+		}
+		else {
+			anim->PlayReloadAnim(TEXT("SniperReload"));
+		}
 		UGameplayStatics::PlaySound2D(GetWorld(), reloadSound);
 
 	}
@@ -574,8 +601,13 @@ void APlayerCharacter::OnActionReload()
 		{
 			return;
 		}
-
-		anim->PlayReloadAnim(TEXT("SniperReload"));
+		if (isProne == true)
+		{
+			anim->PlayProneReloadAnim();
+		}
+		else {
+			anim->PlayReloadAnim(TEXT("SniperReload"));
+		}
 		UGameplayStatics::PlaySound2D(GetWorld(), reloadSound);
 	}
 

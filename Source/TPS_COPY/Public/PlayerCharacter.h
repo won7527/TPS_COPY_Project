@@ -273,5 +273,8 @@ public:
 	bool IsRealEnd;
 	bool IsZoomEnd;
 	bool isRifleZooming;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isProne;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isCrouching;
 };

@@ -45,6 +45,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PlaySwapAnim();
 
+	UFUNCTION(BlueprintCallable)
+	void PlayProneSwapAnim();
+
+	UFUNCTION(BlueprintCallable)
+	void PlayProneReloadAnim();
+	
+	UFUNCTION(BlueprintCallable)
 	void PlayReloadAnim(FName sectionName);
 
 	UFUNCTION(BlueprintCallable)

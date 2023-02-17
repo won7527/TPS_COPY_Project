@@ -489,8 +489,8 @@ void APlayerCharacter::OnActionCrouch() {
 	 }
 	 
 	 bUsingSniper = true;
-	 sniperComp->SetVisibility(true);
-	 rifleComp->SetVisibility(false);
+	 //sniperComp->SetVisibility(true);
+	 //rifleComp->SetVisibility(false);
 	 if (!sniperAmmoUI->IsInViewport())
 	 {
 		sniperAmmoUI->AddToViewport();
@@ -520,8 +520,8 @@ void APlayerCharacter::OnActionCrouch() {
 	 }
 	 
 	 bUsingSniper = false;
-	 sniperComp->SetVisibility(false);
-	 rifleComp->SetVisibility(true);
+	 //sniperComp->SetVisibility(false);
+	 //rifleComp->SetVisibility(true);
 	 sniperAmmoUI->RemoveFromParent();
 	 rifleAmmoUI->AddToViewport();
 	 //sniperBack->SetVisibility(true);
@@ -581,7 +581,7 @@ void APlayerCharacter::OnActionReload()
 		if (isProne == true)
 		{
 			anim->PlayProneReloadAnim();
-		}
+					}
 		else {
 			anim->PlayReloadAnim(TEXT("SniperReload"));
 		}

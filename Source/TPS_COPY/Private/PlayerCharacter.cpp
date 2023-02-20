@@ -370,7 +370,7 @@ void APlayerCharacter::OnActionZoom() {
 		sniperComp->SetVisibility(false);
 		GetMesh()->SetVisibility(false);
 
-		FLinearColor col = UKismetMathLibrary::LinearColor_Black();
+		//FLinearColor col = UKismetMathLibrary::LinearColor_Black();
 
 		//UE_LOG(LogTemp, Warning, TEXT("Zooming"))
 			isZooming = true;
@@ -467,7 +467,7 @@ void APlayerCharacter::OnActionCrouch() {
 
  void APlayerCharacter::OnActionFireRelease() {
 
-	  GetWorldTimerManager().ClearTimer(fireTimerHandle);
+	 // GetWorldTimerManager().ClearTimer(fireTimerHandle);
 	 // GetWorld()->GetTimerManager().SetTimer(sniperShot, this, &APlayerCharacter::ThrowBack, 5, true);
  }
 

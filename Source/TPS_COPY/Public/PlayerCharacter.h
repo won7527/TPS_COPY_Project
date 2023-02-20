@@ -277,4 +277,6 @@ public:
 	bool isProne;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isCrouching;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isHanging;
 };

@@ -320,6 +320,10 @@ void APlayerCharacter::OnAxisHorizontal(float value) {
 }
 
 void APlayerCharacter::OnAxisVertical(float value) {
+	if (isHanging == true)
+	{
+		return;
+	}
 	direction.X = value;
 }
 

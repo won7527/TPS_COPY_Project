@@ -537,7 +537,7 @@ void APlayerCharacter::OnActionCrouch() {
 
  void APlayerCharacter::OnActionDash() {
 	 
-	 if (isCrouching || isProne==true) {
+	 if (isCrouching || isProne || isRifleZooming || isZooming ==true) {
 		 return;
 	 }
 
@@ -546,7 +546,7 @@ void APlayerCharacter::OnActionCrouch() {
  }
  void APlayerCharacter::OnActionDashReleased() {
 
-	 if (isCrouching || isProne==true) {
+	 if (isCrouching || isProne || isRifleZooming || isZooming ==true) {
 		 return;
 	 }
 

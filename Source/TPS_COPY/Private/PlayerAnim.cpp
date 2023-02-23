@@ -28,6 +28,12 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds) {
 		// 플레이어가 현재 공중에 있는지 여부를 기억하고 싶다.
 		auto movement = player->GetCharacterMovement();
 		isInAir = movement->IsFalling();
+		isRifleZoomingAB = player->isRifleZooming;
+		isProneAB = player->isProne;
+		isTiltingLeftAB = player->isTiltingLeft;
+		isTiltingRightAB = player->isTiltingRight;
+		isZoomingAB = player->isZooming;
+
 	}
 
 	

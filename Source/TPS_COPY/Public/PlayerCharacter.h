@@ -280,4 +280,14 @@ public:
 	bool isCrouching;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isHanging;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isTiltingLeft;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isTiltingRight;
+
+
+
+
+
+
 };

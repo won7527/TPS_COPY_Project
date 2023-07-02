@@ -118,7 +118,7 @@ void ADoor::Open()
 
 void ADoor::SoundStart()
 {
-	DoorSound = UGameplayStatics::SpawnSound2D(this, DoorOpenSound);
+	DoorSound = UGameplayStatics::SpawnSound2D(this, DoorOpenSound, 0.2);
 
 	if (DoorSound)
 	{

@@ -212,7 +212,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 
 	
-	/*if (!(PlayerController->MainWid->IsGlitch) && GetWorld()->GetName() == FString("MainLevel"))
+	if (!(PlayerController->MainWid->IsGlitch) && GetWorld()->GetName() == FString("MainLevel"))
 	{
 		PlayerController->MainWid->MainScreen();
 	}
@@ -268,7 +268,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		IsRealEnd = true;
 
 	}
-	*/
+	
 	
 }
 
@@ -340,9 +340,7 @@ void APlayerCharacter::OnActionZoomIn() {
 	{
 		if (isZooming)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)			
-				cameraComp->FieldOfView -= 3;
-		
+			cameraComp->FieldOfView -= 3;		
 		}
 	}
 		
@@ -352,11 +350,8 @@ void APlayerCharacter::OnActionZoomOut() {
 	if (bUsingSniper)
 	{
 		if (isZooming)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("%f"), cameraComp->FieldOfView)
-			
-				cameraComp->FieldOfView += 3;	
-		
+		{			
+			cameraComp->FieldOfView += 3;			
 		}
 	}
 }
@@ -373,15 +368,7 @@ void APlayerCharacter::OnActionZoom() {
 		UGameplayStatics::PlaySound2D(GetWorld(), zoomInSound);
 		sniperComp->SetVisibility(false);
 		GetMesh()->SetVisibility(false);
-
-		//FLinearColor col = UKismetMathLibrary::LinearColor_Black();
-
-		//UE_LOG(LogTemp, Warning, TEXT("Zooming"))
-			isZooming = true;
-		//scopeCaptureComponent->SetVisibility(true);
-		//scopePlane->SetVisibility(true);
-		//scopeBack->SetVisibility(true);
-		
+		isZooming = true;	
 		
 		sniperUI->AddToViewport();
 		sniperDotUI->AddToViewport();
@@ -392,9 +379,7 @@ void APlayerCharacter::OnActionZoom() {
 	
 	}
 	else
-	{
-		
-		//cameraComp->FieldOfView = 50.0f;
+	{		
 	}
 
 
@@ -412,8 +397,7 @@ void APlayerCharacter::OnActionZoomRelease() {
 		sniperDotUI->RemoveFromParent();
 		crosshairUI->AddToViewport();
 		cameraComp->SetFieldOfView(90.0f);
-		//UE_LOG(LogTemp, Warning, TEXT("NotZooming"))
-			isZooming = false;
+		isZooming = false;
 		//scopeCaptureComponent->SetVisibility(false);
 		//scopeCaptureComponent->FOVAngle = 90.0;
 		//scopePlane->SetVisibility(false);
@@ -647,12 +631,10 @@ void APlayerCharacter::OnFire() {
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
 			GetWorld()->SpawnActor<AActor>(sniperBulletShellFactory, sniperComp->GetSocketTransform(TEXT("sniperBulletShell")));
-			// ���� �����ִٸ� 1�� �����ϰ� �ʹ�.
 			sniperAmmo--;
 		}
 		else
 		{
-			 //�׷��� ������ ���� ���� �ʰڴ�.
 			UGameplayStatics::PlaySound2D(GetWorld(), emptySound);
 			return;
 		}
@@ -662,7 +644,6 @@ void APlayerCharacter::OnFire() {
 			 AEnemy* hittedActor = Cast<AEnemy>(hitInfo.GetActor());
 			 sniperImpactPoint = hitInfo.ImpactPoint;
 			 sniperTraceEnd = hitInfo.TraceEnd;
-			//sniperImpactNormal = hitInfo.ImpactNormal
 		  	FTransform trans(hitInfo.ImpactPoint);
 			 if (bHit)
 			 {
@@ -678,8 +659,7 @@ void APlayerCharacter::OnFire() {
 				 }
 				 else
 				 {
-					 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
-					 
+					 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);					 
 				 }
 			 //int32 randomBulletYaw = FMath::RandRange(1, 20);
 			 //int32 randomBulletPitch = FMath::RandRange(1, 20);
@@ -735,8 +715,7 @@ void APlayerCharacter::OnFire() {
 				 //}
 			 }
 			 else
-			 {
-		
+			 {		
 				 SniperNotHitTrail();
 			 }
 		 }

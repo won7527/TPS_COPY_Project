@@ -275,8 +275,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// 라이플을 장착하고 있다면
-		
+		// 라이플을 장착하고 있다면		
 		if(bUsingSniper==false)
 		{
 			// 사격 가능한 상태이면서 왼쪽 마우스 버튼이 눌려져 있다면
@@ -297,7 +296,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 					ObjectTypes.Add(Pawn);
 					ObjectTypes.Add(PhysicsBody);
 					TArray<AActor*> ActorsToIgnore;
-					ActorsToIgnore.Add(this);
+					ActorsToIgnore.Add(this); // LineTrace에서 제외할 대상
 					isZoomingLineTraceHitted = UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),startLoc, EndLoc, ObjectTypes, true, ActorsToIgnore, EDrawDebugTrace::None, zoomingHitResult, true);
 				}
 				// 라이플 줌을 하고 있지 않은 상태라면
@@ -315,7 +314,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 					ObjectTypes.Add(Pawn);
 					ObjectTypes.Add(PhysicsBody);
 					TArray<AActor*> ActorsToIgnore;
-					ActorsToIgnore.Add(this);
+					ActorsToIgnore.Add(this); // LineTrace에서 제외할 대상
 					isNotZoomingLineTraceHitted = UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),startLoc, EndLoc, ObjectTypes, true, ActorsToIgnore, EDrawDebugTrace::None, notZoomingHitResult, true);
 				}
 				// Clamp를 통한 탄약 수 차감
@@ -367,9 +366,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 								if(isRifleZooming)
 								{
 									auto fireSocketLoc = rifleComp->GetSocketTransform(FName("RifleFirePosition")).GetLocation();
+									// 탄 궤적 나이아가라 시스템 스폰
 									auto niagara = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BulletTrailSystem, zoomingHitResult.Location, FRotator::ZeroRotator,FVector(1), true, true, ENCPoolMethod::AutoRelease);
 									if(niagara)
 									{
+										// 나이아가라 파라미터 벡터 위치 변수 할당
 										niagara->SetVectorParameter(FName("EndPoint"), fireSocketLoc);
 									}
 									if(isRifleZooming)
@@ -1193,7 +1194,7 @@ void APlayerCharacter::OnActionZoomIn() {
 	{
 		if (isZooming)
 		{
-			cameraComp->FieldOfView -= 3;		
+			cameraComp->FieldOfView=FMath::Clamp(cameraComp->FieldOfView -= 3, 30, 90);			
 		}
 	}
 		
@@ -1204,7 +1205,7 @@ void APlayerCharacter::OnActionZoomOut() {
 	{
 		if (isZooming)
 		{			
-			cameraComp->FieldOfView += 3;			
+			cameraComp->FieldOfView=FMath::Clamp(cameraComp->FieldOfView += 3, 30, 90);			
 		}
 	}
 }
@@ -1460,123 +1461,75 @@ void APlayerCharacter::OnActionLaser()
 
 void APlayerCharacter::OnFire() {
 
-	 FTimerHandle dieTimerHandle;
-	 FTransform t = GetMesh()->GetSocketTransform(TEXT("sniperFire"));
-	 FTransform s = GetMesh()->GetSocketTransform(TEXT("rifleFire"));
-	 FVector sniperFireLoc = t.GetLocation();
-	 FVector rifleFireLoc = s.GetLocation();
-	 FHitResult hitInfo;
-	 FVector start = cameraComp->GetComponentLocation();
-	 end = start + cameraComp->GetForwardVector() * 100000;
-	 FCollisionQueryParams params;
-	 params.AddIgnoredActor(this);
-	
+
+	 // 플레이어가 스나이퍼를 사용하고 있다면
 	 if (bUsingSniper)
 	 {
-		//
+	 	// 스나이퍼 탄을 1발 이상 가지고 있다면
 		if(sniperAmmo>0)
 		{
+			// 스나이퍼 발사 사운드 재생
 			UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+			// 스나이퍼 탄피 액터 스폰
 			GetWorld()->SpawnActor<AActor>(sniperBulletShellFactory, sniperComp->GetSocketTransform(TEXT("sniperBulletShell")));
+			// 스나이퍼 잔탄수 -1
 			sniperAmmo--;
 		}
+	 	// 스나이퍼 탄을 가지고 있지 않다면
 		else
 		{
+			// 탄 고갈 사운드 재생
 			UGameplayStatics::PlaySound2D(GetWorld(), emptySound);
 			return;
 		}
+	 	 // 반동 표현을 위한 카메라 셰이크
 		 auto controller = GetWorld()->GetFirstPlayerController();
+	 	 // 카메라 셰이크 재생
 		 controller->PlayerCameraManager->StartCameraShake(cameraShake);
+	 	 FHitResult hitInfo;
+	 	 FVector start = cameraComp->GetComponentLocation();
+	  	 end = start + cameraComp->GetForwardVector() * 100000;
+	 	 FCollisionQueryParams params;
+	 	 params.AddIgnoredActor(this);
+	 	 // 카메라로부터 뻗어나가는 라인트레이스 생성
 		 bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECollisionChannel::ECC_Visibility, params);
-			 AEnemy* hittedActor = Cast<AEnemy>(hitInfo.GetActor());
-			 sniperImpactPoint = hitInfo.ImpactPoint;
-			 sniperTraceEnd = hitInfo.TraceEnd;
-		  	FTransform trans(hitInfo.ImpactPoint);
-			 if (bHit)
+	 	 sniperImpactPoint = hitInfo.ImpactPoint;
+		 sniperTraceEnd = hitInfo.TraceEnd;
+	 	 FTransform trans(hitInfo.ImpactPoint);
+	 	 // 라인트레이스가 적중했다면
+	 	 if (bHit)
 			 {
-			 	 auto hitComp = hitInfo.GetComponent();
+	 	 		// 라인트레이스 적중한 액터 캐스팅, 변수에 저장
 				 AEnemy* HittedActor = Cast<AEnemy>(hitInfo.GetActor());
+	 	 		// 캐스팅에 성공했다면
 				 if(HittedActor)
 				 {
+				 	// 피 튀기는 형태의 파티클 스폰
 					 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bloodImpactFactory, trans);
+				 	// 해당 enemy 데미지 프로세싱
 					 HittedActor->SniperHit();
+				 	// 나이아가라 탄 궤적 스폰
 					 SniperHitTrail();
+				 	// 탄 명중 UI 뷰포트에 배치
 					 hitUI->AddToViewport();
 				 }
 				 else
 				 {
+				 	// 파편 튀기는 형태의 파티클 스폰
 					 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);					 
 				 }
-			 //int32 randomBulletYaw = FMath::RandRange(1, 20);
-			 //int32 randomBulletPitch = FMath::RandRange(1, 20);
-			 //FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
-
-			 //GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, sniperFireLoc, cameraComp->GetComponentRotation() + randomBullet);
-
-			 
-		 
-				 /*auto decalLoc = hitInfo.Location;
-
-				
-				 //auto hitComp = hitInfo.GetComponent();
-				 //auto hitEnemy = hitInfo.GetActor();
-			 	;
-				 FTransform trans(hitInfo.ImpactPoint);				
-			
-				 if(hittedActor)
-				//if(hitInfo.GetActor()->GetClass()->GetName() == "BP_Enemy_C")
-				{
-					
-				
-					hittedActor->SniperHit();
-				}
-				else
-				{
-					
-				}
-
-				// bool isActor = Cast<AEnemy>(Get)
-
-			 	/*auto decalLoc = hitInfo.Location;
-
-				 auto hitIN = hitInfo.ImpactNormal;
-				 auto hitRot = UKismetMathLibrary::Conv_VectorToRotator(hitIN);
-				 auto decalRot = UKismetMathLibrary::MakeTransform(hitInfo.Location, hitRot);
-				
-				 UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decalFactory, FVector(1, 1, 1), decalLoc, hitRot);*/
-				// if(hitInfo==)			 	
-				 //if (hitComp != nullptr && hitComp->IsSimulatingPhysics())
-				 //{
-					 //FVector force = -hitInfo.ImpactNormal * hitComp->GetMass();
-					// hitComp->AddForce(force);
-					 //UE_LOG(LogTemp, Warning, TEXT("ischased"))
-					 //FVector forceDir = (hitInfo.TraceEnd - hitInfo.TraceStart).GetSafeNormal();
-
-					 //FVector force = forceDir * 500000 * hitComp->GetMass();
-					 //hitComp->AddForce(force);
-					//auto enemy = Cast<AEnemy>()
-
-					 
-					 
-				 //}
 			 }
 			 else
-			 {		
+			 {
+			 	// 명중 실패 탄 궤적 스폰
 				 SniperNotHitTrail();
 			 }
 		 }
 	 else
 	 {
-	 return;
+		return;
 	 }
-	 }
-	 //int32 randomBulletYaw = FMath::RandRange(1, 10);
-		 //int32 randomBulletPitch = FMath::RandRange(1, 10);
-		 //FRotator randomBullet = FRotator(randomBulletPitch, randomBulletYaw, 0);
-
-		 //GetWorld()->SpawnActor<APlayerBullet>(bulletFactory, rifleFireLoc, cameraComp->GetComponentRotation() + randomBullet);
-	 
-
+}
 		
  
 

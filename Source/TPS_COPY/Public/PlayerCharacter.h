@@ -46,9 +46,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCameraComponent* cameraComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UStaticMeshComponent* ScopeCamLocMesh;
-
 	// �������� ���̷�Ż�޽� �߰�
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SniperMesh)
 	class UStaticMeshComponent* sniperComp;
@@ -229,6 +226,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = PlayerSetting)
 	FVector sniperLoc = FVector (40, 0, 30);
 	FVector rifleLoc = FVector(-42, 7, 1);
+	FVector fireLoc;
 	UPROPERTY(EditAnywhere, Category = PlayerSetting)
 		FVector rrifleLoc = FVector(3.790621, 53.665231, 0.000000);
 
@@ -239,18 +237,18 @@ public:
 	//int maxRifleAmmo = 20;
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
 	//int rifleAmmo;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int allSniperAmmo;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
+		int allSniperAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
 	int maxSniperAmmo = 8;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerSetting)
 	int sniperAmmo;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int allRifleAmmo;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int maxRifleAmmo = 30;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int rifleAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
+		int allRifleAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
+		int maxRifleAmmo = 30;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
+		int rifleAmmo;
 	UFUNCTION(BlueprintImplementableEvent)
 	void SniperHitTrail();
 	UFUNCTION(BlueprintImplementableEvent)
@@ -286,44 +284,10 @@ public:
 	bool isTiltingLeft;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isTiltingRight;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool isLMBC;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool CanShoot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float BulletsPerSec = 11.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool isLaserOn;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool isRifleShootableC=true;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool isZoomingLineTraceHitted;
-	UPROPERTY()
-	FHitResult zoomingHitResult;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool isNotZoomingLineTraceHitted;
-	UPROPERTY()
-	FHitResult notZoomingHitResult;
 
-	UPROPERTY(EditAnywhere, Category="Sounds")
-	class USoundBase* RifleFireSound;
-	UPROPERTY(EditAnywhere, Category="Sounds")
-	class USoundBase* RifleBulletShellDropSound;
-	UPROPERTY(EditAnywhere, Category="Niagara")
-	class UNiagaraSystem* BulletTrailSystem;
 
-	UPROPERTY()
-	FVector ZoomingLineTraceHittedLocation;
-	UPROPERTY(EditAnywhere, Category="Factory")
-	TSubclassOf<class AActor> ShotDecalFactory;
-	UPROPERTY(EditAnywhere, Category="Factory")
-	TSubclassOf<class AActor> BulletShellFactory;
-	UPROPERTY(EditAnywhere, Category="Particle")
-	class UParticleSystem* bloodParticle;
-	UPROPERTY(EditAnywhere, Category="Particle")
-	class UParticleSystem* bulletMarksParticle;
-	UPROPERTY(EditAnywhere, Category="Particle")
-	class UParticleSystem* fireParticle;
+
+
 
 
 };

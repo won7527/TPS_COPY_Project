@@ -8,24 +8,24 @@
 
 void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds) {
 
-	// í”Œë ˆì´ì–´ì˜ ì´ë™ ì†ë„ë¥¼ ê°€ì ¸ì™€ speedì— í• ë‹¹í•˜ê³  ì‹¶ë‹¤.
-	// ì†Œìœ  í° ì–»ì–´ì˜¤ê¸°
+	// ÇÃ·¹ÀÌ¾îÀÇ ÀÌµ¿ ¼Óµµ¸¦ °¡Á®¿Í speed¿¡ ÇÒ´çÇÏ°í ½Í´Ù.
+	// ¼ÒÀ¯ Æù ¾ò¾î¿À±â
 	auto ownerPawn = TryGetPawnOwner();
-	// í”Œë ˆì´ì–´ë¡œ ìºìŠ¤íŒ…
+	// ÇÃ·¹ÀÌ¾î·Î Ä³½ºÆÃ
 	auto player = Cast<APlayerCharacter>(ownerPawn);
 
 	if (player != nullptr)
 	{
-		// ì´ë™ ì†ë„ê°€ í•„ìš”
+		// ÀÌµ¿ ¼Óµµ°¡ ÇÊ¿ä
 		FVector velocity = player->GetVelocity();
-		// í”Œë ˆì´ì–´ì˜ ì „ë°© ë²¡í„°ê°€ í•„ìš”
+		// ÇÃ·¹ÀÌ¾îÀÇ Àü¹æ º¤ÅÍ°¡ ÇÊ¿ä
 		FVector forwardVector = player->GetActorForwardVector();
-		// speedì— ê°’ í• ë‹¹í•˜ê¸°
+		// speed¿¡ °ª ÇÒ´çÇÏ±â
 		speed = FVector::DotProduct(forwardVector, velocity);
 
 		FVector rightVector = player->GetActorRightVector();
 		direction = FVector::DotProduct(rightVector, velocity);
-		// í”Œë ˆì´ì–´ê°€ í˜„ì¬ ê³µì¤‘ì— ìˆëŠ”ì§€ ì—¬ë¶€ë¥¼ ê¸°ì–µí•˜ê³  ì‹¶ë‹¤.
+		// ÇÃ·¹ÀÌ¾î°¡ ÇöÀç °øÁß¿¡ ÀÖ´ÂÁö ¿©ºÎ¸¦ ±â¾ïÇÏ°í ½Í´Ù.
 		auto movement = player->GetCharacterMovement();
 		isInAir = movement->IsFalling();
 		isRifleZoomingAB = player->isRifleZooming;

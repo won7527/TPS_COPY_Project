@@ -5,10 +5,8 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
 #include <GameFramework/CharacterMovementComponent.h>
-#include "PlayerBullet.h"
 #include "GameFramework/Character.h"
 #include <Math/UnrealMathUtility.h>
-#include <Components/SceneCaptureComponent2D.h>
 #include "Blueprint/UserWidget.h"
 #include "PlayerAnim.h"
 #include "Components/StaticMeshComponent.h"
@@ -21,9 +19,7 @@
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Door.h"
-#include "CountProgressUI.h"
-#include "Blueprint/WidgetLayoutLibrary.h"
-#include "EndGameUI.h"
+#include "Particles/ParticleSystemComponent.h"
 
 
 // Sets default values
@@ -114,6 +110,8 @@ APlayerCharacter::APlayerCharacter()
 		}
 	}
 
+	ScopeCamLocMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ScopeCamLocMesh"));
+	ScopeCamLocMesh->SetupAttachment(rifleComp);
 
 
 
@@ -210,8 +208,377 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		PlayerController->UIWeapon->SniperSet();
 	}
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// 라이플을 장착하고 있다면
+	/*if(bUsingSniper==false)
+	{
+		// 사격 가능한 상태이면서 왼쪽 마우스 버튼이 눌려져 있다면
+		if(CanShoot&&isLMBC)
+		{
+			// 라이플 줌을 하고 있는 상태라면
+			if(isRifleZooming)
+			{
+				FVector startLoc = ScopeCamLocMesh->K2_GetComponentLocation();
+				FVector EndLoc = startLoc + ScopeCamLocMesh->GetForwardVector()*10000.0f;
+				TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes; // LineTrace로 히트 가능한 오브젝트 유형들.
+				TEnumAsByte<EObjectTypeQuery> WorldStatic = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic);
+				TEnumAsByte<EObjectTypeQuery> WorldDynamic = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic);
+				TEnumAsByte<EObjectTypeQuery> Pawn = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+				TEnumAsByte<EObjectTypeQuery> PhysicsBody = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody);
+				ObjectTypes.Add(WorldStatic);
+				ObjectTypes.Add(WorldDynamic);
+				ObjectTypes.Add(Pawn);
+				ObjectTypes.Add(PhysicsBody);
+				TArray<AActor*> ActorsToIgnore;
+				isZoomingLineTraceHitted = UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),startLoc, EndLoc, ObjectTypes, true, ActorsToIgnore, EDrawDebugTrace::None, zoomingHitResult, true);
+			}
+			// 라이플 줌을 하고 있지 않은 상태라면
+			else
+			{
+				FVector startLoc = cameraComp->K2_GetComponentLocation();
+				FVector EndLoc = startLoc + cameraComp->GetForwardVector()*10000.0f;
+				TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes; // LineTrace로 히트 가능한 오브젝트 유형들.
+				TEnumAsByte<EObjectTypeQuery> WorldStatic = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic);
+				TEnumAsByte<EObjectTypeQuery> WorldDynamic = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic);
+				TEnumAsByte<EObjectTypeQuery> Pawn = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+				TEnumAsByte<EObjectTypeQuery> PhysicsBody = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody);
+				ObjectTypes.Add(WorldStatic);
+				ObjectTypes.Add(WorldDynamic);
+				ObjectTypes.Add(Pawn);
+				ObjectTypes.Add(PhysicsBody);
+				TArray<AActor*> ActorsToIgnore;
+				isNotZoomingLineTraceHitted = UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),startLoc, EndLoc, ObjectTypes, true, ActorsToIgnore, EDrawDebugTrace::None, notZoomingHitResult, true);
+			}
+			// Clamp를 통한 탄약 수 차감
+			rifleAmmo = FMath::Clamp(rifleAmmo-1, 0, 30);
+			// 라이플 탄약 수가 0발 이하라면
+			if(rifleAmmo<=0)
+			{
+				// 사격할 수 없는 상태로 전환
+				isRifleShootableC=false;
+			}
+			// 라이플을 사격할 수 있는 상태이면서
+			if(isRifleShootableC)
+			{
+				// 라이플 줌을 하고 있는 상태라면
+				if(isRifleZooming)
+				{
+					// 줌 상태의 라인 트레이스가 적중했다면
+					if(isZoomingLineTraceHitted)
+					{
+						// AddControllerInput와 RandomFloat을 통한 랜덤 반동 구현
+						auto randF = UKismetMathLibrary::RandomFloatInRange(-0.4, -1.5);
+						auto randF2 = UKismetMathLibrary::RandomFloatInRange(-0.5, 0.5);
+						AddControllerPitchInput(randF);
+						AddControllerYawInput(randF2);
+						auto soundLoc = rifleComp->GetSocketTransform(FName("RifleFirePosition")).GetLocation();
+						auto bulSoundLoc = GetActorLocation()*FVector(0, 0, -80);
+						// 사격 사운드와 탄피 드랍 사운드 재생
+						UGameplayStatics::SpawnSoundAtLocation(GetWorld(), RifleFireSound, soundLoc);
+						UGameplayStatics::SpawnSoundAtLocation(GetWorld(), RifleBulletShellDropSound, bulSoundLoc, FRotator::ZeroRotator, 0.4, 1, 0);
+						// 애니메이션 인스턴스 캐스팅
+						auto animInst=Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+						// 캐스팅이 성공했다면
+						if(animInst)
+						{
+							// 사격 애니메이션 몽타주 재생
+							animInst->PlayAttackAnim();
+							// 라이플 줌을 하고 있는 상태라면
+							if(isRifleZooming)
+							{
+								auto fireLoc = rifleComp->GetSocketTransform(FName("RifleFirePosition")).GetLocation();
+								UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BulletTrailSystem, zoomingHitResult.Location, FRotator::ZeroRotator,FVector(1), true, true, ENCPoolMethod::AutoRelease);
+								UFXSystemComponent fxSys;
+								fxSys.SetVectorParameter(FName("EndPoint"), fireLoc);
+								if(isRifleZooming)
+								{
+									if(isRifleZooming)
+									{
+										// enemy 캐스팅
+										auto enemy = Cast<AEnemy>(zoomingHitResult.GetActor());
+										// 라인트레이스가 enemy에 적중했다면
+										if(enemy)
+										{
+											FActorSpawnParameters param;
+											param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+											// X Vector 값으로부터 Rotator 값 추출
+											auto decalRot = UKismetMathLibrary::Conv_VectorToRotator(zoomingHitResult.ImpactNormal);
+											auto decalLoc = zoomingHitResult.Location;
+											auto decalTrans = UKismetMathLibrary::MakeTransform(decalLoc, decalRot);
+											// 트랜스폼 값을 바탕으로 탄흔 액터 스폰
+											GetWorld()->SpawnActor<AActor>(ShotDecalFactory, decalTrans);
+											// 트랜스폼 값을 바탕으로 피가 튀는 파티클 스폰
+											UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bloodParticle, decalLoc, decalRot);
+											// enemy 적중할 시 나타나는 UI를 띄우고
+											hitUI->AddToViewport();
+											//사격 불가 상태로 전환
+											CanShoot=false;
+											FTimerHandle shootEnableHandle;
+											// 사격 가능 상태 전환을 위한 타이머 설정
+											GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+											{
+												// 1/BulletsPerSec 초 후에 사격 가능 상태로 전환
+												CanShoot=true;
+											}), 1/BulletsPerSec, false);
+											enemy->RifleHit();
+										}
+										// 라인트레이스가 enemy에 적중하지 않았다면(지형지물에 적중했다면)
+										else
+										{
+											FActorSpawnParameters param;
+											param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+											// 줌 상태의 라인트레이스 적중 결과 노말의 X Vector 값으로부터 Rotator 값 추출
+											auto decalRot = UKismetMathLibrary::Conv_VectorToRotator(zoomingHitResult.ImpactNormal);
+											// 라인트레이스 적중 결과의 위치값
+											auto decalLoc = zoomingHitResult.Location;
+											auto decalTrans = UKismetMathLibrary::MakeTransform(decalLoc, decalRot);
+											// 트랜스폼 값을 바탕으로 탄흔 액터 스폰
+											GetWorld()->SpawnActor<AActor>(ShotDecalFactory, decalTrans);
+											// 트랜스폼 값을 바탕으로 벽이나 바닥 잔해가 튀는 파티클 스폰
+											UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletMarksParticle, decalLoc, decalRot);
+											CanShoot=false;
+											FTimerHandle shootEnableHandle;
+											// 사격 가능 상태 전환을 위한 타이머 설정
+											GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+											{
+												// 1/BulletsPerSec 초 후에 사격 가능 상태로 전환
+												CanShoot=true;
+											}), 1/BulletsPerSec, false);
+										}
+									}
+									// 라이플 줌을 하고 있지 않은 상태라면
+									else
+									{
+										// enemy 캐스팅
+										auto enemy = Cast<AEnemy>(notZoomingHitResult.GetActor());
+										// 라인트레이스가 enemy에 적중했다면
+										if(enemy)
+										{
+											FActorSpawnParameters param;
+											param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+											// 줌이 아닌 상태의 라인트레이스 적중 결과 노말의 X Vector 값으로부터 Rotator 값 추출
+											auto decalRot = UKismetMathLibrary::Conv_VectorToRotator(notZoomingHitResult.ImpactNormal);
+											// 라인트레이스 적중 결과의 위치값
+											auto decalLoc = notZoomingHitResult.Location;
+											auto decalTrans = UKismetMathLibrary::MakeTransform(decalLoc, decalRot);
+											// 트랜스폼 값을 바탕으로 탄흔 액터 스폰
+											GetWorld()->SpawnActor<AActor>(ShotDecalFactory, decalTrans);
+											// 트랜스폼 값을 바탕으로 피가 튀는 파티클 스폰
+											UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bloodParticle, decalLoc, decalRot);
+											// enemy 적중할 시 나타나는 UI를 띄우고
+											hitUI->AddToViewport();
+											// 사격 불가능 상태로 전환
+											CanShoot=false;
+											FTimerHandle shootEnableHandle;
+											// 사격 가능 상태 전환을 위한 타이머 설정
+											GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+											{
+												// 1/BulletsPerSec 초 후에 사격 가능 상태로 전환
+												CanShoot=true;
+											}), 1/BulletsPerSec, false);
+											enemy->RifleHit();
+										}
+										// 라인트레이스가 enemy에 적중하지 않았다면
+										else
+										{
+											FActorSpawnParameters param;
+											param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+											auto decalRot = UKismetMathLibrary::Conv_VectorToRotator(notZoomingHitResult.ImpactNormal);
+											auto decalLoc = notZoomingHitResult.Location;
+											auto decalTrans = UKismetMathLibrary::MakeTransform(decalLoc, decalRot);
+											GetWorld()->SpawnActor<AActor>(ShotDecalFactory, decalTrans);
+											UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletMarksParticle, decalLoc, decalRot);
+											CanShoot=false;
+											FTimerHandle shootEnableHandle;
+											GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+											{
+												CanShoot=true;
+											}), 1/BulletsPerSec, false);
+										}
+									}
+								}
+								else
+								{
+									auto fireSocketTrans = rifleComp->GetSocketTransform(FName("RifleFirePosition"));
+									UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), fireParticle, fireSocketTrans);
+									if(isRifleZooming)
+									{
+										auto enemy = Cast<AEnemy>(zoomingHitResult.GetActor());
+										if(enemy)
+										{
+											FActorSpawnParameters param;
+											param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+											auto decalRot = UKismetMathLibrary::Conv_VectorToRotator(zoomingHitResult.ImpactNormal);
+											auto decalLoc = zoomingHitResult.Location;
+											auto decalTrans = UKismetMathLibrary::MakeTransform(decalLoc, decalRot);
+											GetWorld()->SpawnActor<AActor>(ShotDecalFactory, decalTrans);
+											UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bloodParticle, decalLoc, decalRot);
+											hitUI->AddToViewport();
+											CanShoot=false;
+											FTimerHandle shootEnableHandle;
+											GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+											{
+												CanShoot=true;
+											}), 1/BulletsPerSec, false);
+											enemy->RifleHit();
+										}
+										else
+										{
+											FActorSpawnParameters param;
+											param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+											auto decalRot = UKismetMathLibrary::Conv_VectorToRotator(zoomingHitResult.ImpactNormal);
+											auto decalLoc = zoomingHitResult.Location;
+											auto decalTrans = UKismetMathLibrary::MakeTransform(decalLoc, decalRot);
+											GetWorld()->SpawnActor<AActor>(ShotDecalFactory, decalTrans);
+											UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletMarksParticle, decalLoc, decalRot);
+											CanShoot=false;
+											FTimerHandle shootEnableHandle;
+											GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+											{
+												CanShoot=true;
+											}), 1/BulletsPerSec, false);
+										}
+									}
+									else
+									{
+										auto enemy = Cast<AEnemy>(notZoomingHitResult.GetActor());
+										if(enemy)
+										{
+											FActorSpawnParameters param;
+											param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+											auto decalRot = UKismetMathLibrary::Conv_VectorToRotator(notZoomingHitResult.ImpactNormal);
+											auto decalLoc = notZoomingHitResult.Location;
+											auto decalTrans = UKismetMathLibrary::MakeTransform(decalLoc, decalRot);
+											GetWorld()->SpawnActor<AActor>(ShotDecalFactory, decalTrans);
+											UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bloodParticle, decalLoc, decalRot);
+											hitUI->AddToViewport();
+											CanShoot=false;
+											FTimerHandle shootEnableHandle;
+											GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+											{
+												CanShoot=true;
+											}), 1/BulletsPerSec, false);
+											enemy->RifleHit();
+										}
+										else
+										{
+											FActorSpawnParameters param;
+											param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+											auto decalRot = UKismetMathLibrary::Conv_VectorToRotator(notZoomingHitResult.ImpactNormal);
+											auto decalLoc = notZoomingHitResult.Location;
+											auto decalTrans = UKismetMathLibrary::MakeTransform(decalLoc, decalRot);
+											GetWorld()->SpawnActor<AActor>(ShotDecalFactory, decalTrans);
+											UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletMarksParticle, decalLoc, decalRot);
+											CanShoot=false;
+											FTimerHandle shootEnableHandle;
+											GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+											{
+												CanShoot=true;
+											}), 1/BulletsPerSec, false);
+										}
+									}
+								}
+							}
+							else
+							{
+								auto fireLoc = rifleComp->GetSocketTransform(FName("RifleFirePosition")).GetLocation();
+								UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BulletTrailSystem, notZoomingHitResult.Location, FRotator::ZeroRotator,FVector(1), true, true, ENCPoolMethod::AutoRelease);
+								UFXSystemComponent fxSys;
+								fxSys.SetVectorParameter(FName("EndPoint"), fireLoc);
+							}
+						}
+						
+						FActorSpawnParameters param;
+						param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+						auto spawnTrans = rifleComp->GetSocketTransform(FName("BulletShell"));
+						auto bulletShell = GetWorld()->SpawnActor<AActor>(BulletShellFactory, spawnTrans);
+						bulletShell->SetLifeSpan(5.0f);
+					}
+					else
+					{
+						auto randF = UKismetMathLibrary::RandomFloatInRange(-0.4, -1.5);
+						auto randF2 = UKismetMathLibrary::RandomFloatInRange(-0.5, 0.5);
+						AddControllerPitchInput(randF);
+						AddControllerYawInput(randF2);
+						auto soundLoc = rifleComp->GetSocketTransform(FName("RifleFirePosition")).GetLocation();
+						UGameplayStatics::SpawnSoundAtLocation(GetWorld(), RifleFireSound, soundLoc);
+						if(isRifleZooming)
+						{
+							FVector startLoc = ScopeCamLocMesh->K2_GetComponentLocation();
+							FVector ForwardLoc = startLoc + ScopeCamLocMesh->GetForwardVector()*10000.0f;
+							auto FireLoc = rifleComp->GetSocketTransform(FName("RifleFirePosition")).GetLocation();
+							UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BulletTrailSystem, ForwardLoc, FRotator::ZeroRotator, FVector(1), true, true, ENCPoolMethod::AutoRelease);
+							UFXSystemComponent fxSys;
+							fxSys.SetVectorParameter(FName("EndPoint"), FireLoc);
+						}
+						else
+						{
+							FVector startLoc = cameraComp->K2_GetComponentLocation();
+							FVector ForwardLoc = startLoc + cameraComp->GetForwardVector()*10000.0f;
+							auto FireLoc = rifleComp->GetSocketTransform(FName("RifleFirePosition")).GetLocation();
+							UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BulletTrailSystem, ForwardLoc, FRotator::ZeroRotator, FVector(1), true, true, ENCPoolMethod::AutoRelease);
+							UFXSystemComponent fxSys;
+							fxSys.SetVectorParameter(FName("EndPoint"), FireLoc);
+						}
+						if(isRifleZooming)
+						{
+							CanShoot=false;
+							FTimerHandle shootEnableHandle;
+							GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+							{
+								CanShoot=true;
+							}), 1/BulletsPerSec, false);
+						}
+						else
+						{
+							auto particleTrans = rifleComp->GetSocketTransform(FName("RifleFirePosition"));
+							UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), fireParticle, particleTrans);
+							CanShoot=false;
+							FTimerHandle shootEnableHandle;
+							GetWorldTimerManager().SetTimer(shootEnableHandle, FTimerDelegate::CreateLambda([this]()->void
+							{
+								CanShoot=true;
+							}), 1/BulletsPerSec, false);
+						}
+					}
+				}
+				else
+				{
+					if(isNotZoomingLineTraceHitted)
+					{
+						auto randF = UKismetMathLibrary::RandomFloatInRange(-0.4, -1.5);
+						auto randF2 = UKismetMathLibrary::RandomFloatInRange(-0.5, 0.5);
+						AddControllerPitchInput(randF);
+						AddControllerYawInput(randF2);
+					}
+					else
+					{
+						auto randF = UKismetMathLibrary::RandomFloatInRange(-0.4, -1.5);
+						auto randF2 = UKismetMathLibrary::RandomFloatInRange(-0.5, 0.5);
+						AddControllerPitchInput(randF);
+						AddControllerYawInput(randF2);
+					}
+				}
+			}
+		}
+		
+	}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
 
 	
+	/*
 	if (!(PlayerController->MainWid->IsGlitch) && GetWorld()->GetName() == FString("MainLevel"))
 	{
 		PlayerController->MainWid->MainScreen();
@@ -269,7 +636,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	}
 	
-	
+	*/
 }
 
 // Called to bind functionality to input
@@ -617,16 +984,10 @@ void APlayerCharacter::OnFire() {
 	 end = start + cameraComp->GetForwardVector() * 100000;
 	 FCollisionQueryParams params;
 	 params.AddIgnoredActor(this);
-	
-	//auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass());
-
-	//auto target = Cast<AEnemy>(actor);
-
-	
-	
+	 // 스나이퍼를 사용 중이라면
 	 if (bUsingSniper)
 	 {
-		//
+		// 스나이퍼 탄약이 1발 이상이라면
 		if(sniperAmmo>0)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
@@ -745,21 +1106,25 @@ void APlayerCharacter::OnFire() {
 
  }
 
- void APlayerCharacter::ThrowBack(float deltaTime) {
-	 if (count == 0) {
+ void APlayerCharacter::ThrowBack(float deltaTime)
+ {
+	// 카운트 변수값이 0일 때
+	 if (count == 0)
+	 {
+	 	 // 현재 시간에 델타타임을 누적시킨다.
 		 curTime += deltaTime;
+	 	 // 누적된 시간이 1.2초 이상일 때
 		 if (curTime >= 1.2f)
 		 {
+		 	// 스나이퍼 장전 소리와 탄피 드랍 사운드 재생
 			 UGameplayStatics::PlaySound2D(GetWorld(), reloadBulletSound);
-		 	UGameplayStatics::PlaySound2D(GetWorld(), sniperShellDropSound);
-			 
-				 count = 1;
-				 //UE_LOG(LogTemp, Warning, TEXT("Reload"))
-				 curTime = 0;
-			 
+		 	 UGameplayStatics::PlaySound2D(GetWorld(), sniperShellDropSound);
+			// 카운트 1로 초기화
+		 	count = 1;
+		 	// 누적된 시간 초기화
+		 	curTime = 0;			 
 		 }
 	 }
-
  }
 
  

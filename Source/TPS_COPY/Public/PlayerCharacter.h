@@ -75,12 +75,6 @@ public:
 		class UParticleSystem* bloodImpactFactory;
 
 	UPROPERTY(EditAnywhere)
-		class UParticleSystem* fireSmokeFactory;
-
-	UPROPERTY(EditAnywhere)
-		class UParticleSystem* shotFireFactory;
-
-	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UUserWidget> sniperFactory;
 
 	UPROPERTY(EditAnywhere)
@@ -286,6 +280,56 @@ public:
 	bool isTiltingRight;
 
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isLMBC;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CanShoot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float BulletsPerSec = 11.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isLaserOn;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isRifleShootableC=true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isZoomingLineTraceHitted;
+	UPROPERTY()
+	FHitResult zoomingHitResult;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isNotZoomingLineTraceHitted;
+	UPROPERTY()
+	FHitResult notZoomingHitResult;
+
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	class USoundBase* RifleFireSound;
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	class USoundBase* RifleBulletShellDropSound;
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	class USoundBase* BulletEmptySound;
+	UPROPERTY(EditAnywhere, Category="Niagara")
+	class UNiagaraSystem* BulletTrailSystem;
+
+	UPROPERTY()
+	FVector ZoomingLineTraceHittedLocation;
+	UPROPERTY(EditAnywhere, Category="Factory")
+	TSubclassOf<class AActor> ShotDecalFactory;
+	UPROPERTY(EditAnywhere, Category="Factory")
+	TSubclassOf<class AActor> BulletShellFactory;
+	UPROPERTY(EditAnywhere, Category="Particle")
+	class UParticleSystem* bloodParticle;
+	UPROPERTY(EditAnywhere, Category="Particle")
+	class UParticleSystem* bulletMarksParticle;
+	UPROPERTY(EditAnywhere, Category="Particle")
+	class UParticleSystem* fireParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Particle")
+	bool emptySoundBoolean;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UStaticMeshComponent* ScopeCamLocMesh;
+
+	UPROPERTY()
+	class UFXSystemComponent* fxSys;
 
 
 
